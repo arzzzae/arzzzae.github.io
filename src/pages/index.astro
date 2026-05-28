@@ -1,0 +1,276 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import {
+  siteConfig,
+  resolveSections,
+  resolveSocialLinks,
+  type SectionId,
+} from '../config/site';
+import { fetchUserProjects } from '../lib/fetchRepos';
+import type { PinnedProject } from '../lib/githubRepos';
+
+import ShaderBackground from '../components/ShaderBackground';
+import ParticleHero from '../components/ParticleHero';
+import CursorObject from '../components/CursorObject';
+import CustomCursor from '../components/CustomCursor';
+import SmoothScroll from '../components/SmoothScroll';
+import ThemeToggle from '../components/ThemeToggle';
+import MagneticButton from '../components/MagneticButton';
+import ScrollReveal from '../components/ScrollReveal';
+import Timeline, { type TimelineEntry } from '../components/Timeline';
+import ProjectCard from '../components/ProjectCard';
+import SkillsConstellation, { type SkillGroup } from '../components/SkillsConstellation';
+
+// --- Load content (build time) ---
+const experienceEntries = (await getCollection('experience')).sort(
+  (a: CollectionEntry<'experience'>, b: CollectionEntry<'experience'>) =>
+    a.data.order - b.data.order,
+);
+const skillEntries = (await getCollection('skills')).sort(
+  (a: CollectionEntry<'skills'>, b: CollectionEntry<'skills'>) =>
+    b.data.weight - a.data.weight,
+);
+const pinnedEntries = await getCollection('projects');
+const testimonialEntries = (await getCollection('testimonials')).sort(
+  (a: CollectionEntry<'testimonials'>, b: CollectionEntry<'testimonials'>) =>
+    a.data.order - b.data.order,
+);
+
+// --- Fetch GitHub projects (graceful fallback baked into the adapter) ---
+const pinned: PinnedProject[] = pinnedEntries.map((e: CollectionEntry<'projects'>) => ({
+  repo: e.data.repo,
+  name: e.data.name,
+  description: e.data.description,
+  url: e.data.url,
+  homepage: e.data.homepage ?? null,
+  language: e.data.language ?? null,
+  topics: e.data.topics,
+  order: e.data.order,
+}));
+
+const projects = await fetchUserProjects(siteConfig.githubUsername, {
+  pinned,
+  exclude: ['arzzzae', 'arzzzae.github.io'],
+});
+
+// --- Resolve which sections render ---
+const sections = resolveSections(siteConfig, {
+  projects: projects.length,
+  testimonials: testimonialEntries.length,
+});
+const has = (id: SectionId): boolean => sections.includes(id);
+
+const socialLinks = resolveSocialLinks(siteConfig);
+
+const timelineEntries: TimelineEntry[] = experienceEntries.map(
+  (e: CollectionEntry<'experience'>) => ({
+    role: e.data.role,
+    company: e.data.company,
+    location: e.data.location,
+    start: e.data.start,
+    end: e.data.end,
+    highlights: e.data.highlights,
+    stack: e.data.stack,
+    body: e.body?.trim() ?? '',
+  }),
+);
+
+const skillGroups: SkillGroup[] = skillEntries.map((e: CollectionEntry<'skills'>) => ({
+  id: e.data.id,
+  group: e.data.group,
+  weight: e.data.weight,
+  items: e.data.items,
+}));
+
+const navItems = sections.filter((s) => s !== 'hero');
+const year = new Date().getFullYear();
+---
+
+<Base>
+  <!-- Global motion / 3D islands -->
+  <SmoothScroll client:load />
+  <CustomCursor client:load />
+  <ShaderBackground client:idle />
+
+  <!-- Reduced-motion / no-JS fallback background -->
+  <div class="static-bg" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#hero">{siteConfig.name}</a>
+    <nav class="nav" aria-label="Primary">
+      <ul>
+        {
+          navItems.map((id) => (
+            <li>
+              <a href={`#${id}`} data-cursor="hover">
+                {id.charAt(0).toUpperCase() + id.slice(1)}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <ThemeToggle client:load />
+  </header>
+
+  <main>
+    {
+      has('hero') && (
+        <section id="hero" class="hero">
+          <ParticleHero client:load text="arzzzae" />
+          <div class="hero__overlay">
+            <p class="hero__eyebrow">{siteConfig.role}</p>
+            <h1 class="hero__title">{siteConfig.name}</h1>
+            <p class="hero__tagline">{siteConfig.tagline}</p>
+            <div class="hero__actions">
+              <MagneticButton client:visible href="#projects" ariaLabel="View projects">
+                View Work
+              </MagneticButton>
+              <MagneticButton
+                client:visible
+                href={`mailto:${siteConfig.email}`}
+                ariaLabel="Email me"
+                className="magnetic--ghost"
+              >
+                Get in touch
+              </MagneticButton>
+            </div>
+          </div>
+          <div class="hero__scroll-hint" aria-hidden="true">Scroll</div>
+        </section>
+      )
+    }
+
+    {
+      has('about') && (
+        <section id="about" class="section about">
+          <ScrollReveal client:visible className="about__grid" stagger>
+            <div class="about__text" data-reveal-item>
+              <h2 class="section__title">About</h2>
+              <p>{siteConfig.summary}</p>
+            </div>
+            <div class="about__object" data-reveal-item>
+              <CursorObject client:visible />
+            </div>
+          </ScrollReveal>
+        </section>
+      )
+    }
+
+    {
+      has('skills') && (
+        <section id="skills" class="section skills">
+          <ScrollReveal client:visible>
+            <h2 class="section__title">Skills</h2>
+            <p class="section__lead">
+              A decade across .NET, modern web, cloud, and AI/LLM.
+            </p>
+          </ScrollReveal>
+          <SkillsConstellation client:visible groups={skillGroups} />
+        </section>
+      )
+    }
+
+    {
+      has('experience') && (
+        <section id="experience" class="section experience">
+          <ScrollReveal client:visible>
+            <h2 class="section__title">Experience</h2>
+          </ScrollReveal>
+          <Timeline client:visible entries={timelineEntries} />
+        </section>
+      )
+    }
+
+    {
+      has('projects') && (
+        <section id="projects" class="section projects">
+          <ScrollReveal client:visible>
+            <h2 class="section__title">Projects</h2>
+            <p class="section__lead">
+              Auto-updated from my public GitHub, with a few favorites pinned.
+            </p>
+          </ScrollReveal>
+          <ScrollReveal client:visible className="projects__grid" stagger>
+            {projects.map((project) => (
+              <ProjectCard client:visible project={project} />
+            ))}
+          </ScrollReveal>
+        </section>
+      )
+    }
+
+    {
+      has('testimonials') && (
+        <section id="testimonials" class="section testimonials">
+          <ScrollReveal client:visible>
+            <h2 class="section__title">Testimonials</h2>
+          </ScrollReveal>
+          <ScrollReveal client:visible className="testimonials__grid" stagger>
+            {testimonialEntries.map((t: CollectionEntry<'testimonials'>) => (
+              <figure class="testimonial" data-reveal-item>
+                <blockquote>{t.body?.trim()}</blockquote>
+                <figcaption>
+                  <strong>{t.data.author}</strong>
+                  {(t.data.title || t.data.company) && (
+                    <span>
+                      {t.data.title}
+                      {t.data.title && t.data.company ? ', ' : ''}
+                      {t.data.company}
+                    </span>
+                  )}
+                </figcaption>
+              </figure>
+            ))}
+          </ScrollReveal>
+        </section>
+      )
+    }
+
+    {
+      has('contact') && (
+        <section id="contact" class="section contact">
+          <ScrollReveal client:visible className="contact__inner">
+            <h2 class="section__title">Let's build something</h2>
+            <p class="contact__lead">
+              Open to roles, freelance, and interesting problems.
+            </p>
+            <div class="contact__actions">
+              <MagneticButton
+                client:visible
+                href={`mailto:${siteConfig.email}`}
+                ariaLabel="Send an email"
+              >
+                {siteConfig.email}
+              </MagneticButton>
+              <MagneticButton
+                client:visible
+                href={siteConfig.resumeUrl}
+                ariaLabel="Download resume"
+                className="magnetic--ghost"
+              >
+                Resume
+              </MagneticButton>
+            </div>
+            <ul class="contact__social">
+              {
+                socialLinks.map((link) => (
+                  <li>
+                    <a href={link.url} target="_blank" rel="noreferrer noopener" data-cursor="hover">
+                      {link.label}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </ScrollReveal>
+        </section>
+      )
+    }
+  </main>
+
+  <footer class="site-footer">
+    <p>© {year} {siteConfig.name}. Built with Astro, Three.js & GSAP.</p>
+  </footer>
+</Base>

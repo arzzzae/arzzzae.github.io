@@ -1,0 +1,16 @@
+# build output
+dist/
+# dependencies
+node_modules/
+# generated types
+.astro/
+# env
+.env
+.env.production
+.env.local
+# logs
+npm-debug.log*
+# os
+.DS_Store
+# cache for the build-time github fetch
+.cache/

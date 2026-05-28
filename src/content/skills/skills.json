@@ -1,0 +1,72 @@
+[
+  {
+    "id": "dotnet",
+    "group": ".NET / C#",
+    "weight": 10,
+    "items": [
+      "C#",
+      "ASP.NET",
+      "WebForms",
+      "MVC",
+      "Web API",
+      "Blazor",
+      "Razor Pages",
+      "WPF",
+      "WinUI3",
+      "MAUI",
+      "Xamarin",
+      "XAML",
+      "XSLT"
+    ]
+  },
+  {
+    "id": "web",
+    "group": "Web / JavaScript",
+    "weight": 9,
+    "items": [
+      "TypeScript",
+      "JavaScript",
+      "React",
+      "Angular",
+      "Vue",
+      "jQuery",
+      "HTML",
+      "CSS"
+    ]
+  },
+  {
+    "id": "ai",
+    "group": "AI / LLM",
+    "weight": 8,
+    "items": [
+      "Python",
+      "Flask",
+      "Embeddings",
+      "Chat completions",
+      "RAG workflows"
+    ]
+  },
+  {
+    "id": "cloud",
+    "group": "Azure / Cloud",
+    "weight": 7,
+    "items": [
+      "App Service",
+      "Azure Functions",
+      "Blob Storage",
+      "Communication Services"
+    ]
+  },
+  {
+    "id": "data",
+    "group": "Databases",
+    "weight": 6,
+    "items": ["SQL Server", "Relational DBs", "Document stores"]
+  },
+  {
+    "id": "integrations",
+    "group": "Integrations",
+    "weight": 5,
+    "items": ["ConnectWise", "REST APIs", "SaaS integrations"]
+  }
+]
