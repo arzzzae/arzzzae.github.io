@@ -324,32 +324,33 @@ main {
 }
 .expshow__rail {
   position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  left: 2.5rem;
+  right: 2.5rem;
+  bottom: 2rem;
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.9rem;
-  padding: 1rem 0;
 }
 .expshow__track {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 2px;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
   background: var(--surface-border);
   overflow: hidden;
 }
 .expshow__fill {
   position: absolute;
   inset: 0;
-  background: linear-gradient(var(--accent), var(--accent-2));
-  transform-origin: top center;
-  transform: scaleY(0);
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transform-origin: left center;
+  transform: scaleX(0);
 }
 .expshow__dot {
   position: relative;
+  z-index: 1;
   width: 11px;
   height: 11px;
   border-radius: 50%;
@@ -379,7 +380,7 @@ main {
   inset: 0;
   display: flex;
   align-items: center;
-  padding-left: 2.5rem;
+  padding: 0 2.5rem 6rem;
   will-change: transform, opacity;
 }
 .expshow__content {

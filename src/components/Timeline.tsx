@@ -22,9 +22,10 @@ interface TimelineProps {
 
 /**
  * Pinned experience showcase: the section pins to the viewport and each job is
- * revealed one at a time as the user scrolls, with the outgoing role sliding up
- * and out while the incoming role slides up from below. Scroll position snaps to
- * each role so a single job always fills the stage — no inner scrollbar.
+ * revealed one at a time as the user scrolls, with the outgoing role sliding out
+ * to the left while the incoming role slides in from the right. Scroll position
+ * snaps to each role so a single job always fills the stage — vertical scrolling
+ * drives the horizontal advance, and there is no inner scrollbar.
  *
  * When the user prefers reduced motion (or there is only a single entry) the
  * component falls back to a plain, statically stacked list with everything
@@ -49,9 +50,9 @@ export default function Timeline({ entries }: TimelineProps): React.JSX.Element 
       // Static fallback: stacked, fully visible, no pin.
       if (prefersReduced || panels.length < 2) {
         root.classList.add('expshow--static');
-        gsap.set(panels, { autoAlpha: 1, yPercent: 0 });
+        gsap.set(panels, { autoAlpha: 1, xPercent: 0 });
         dots.forEach((d) => d.classList.add('is-active'));
-        if (fill) gsap.set(fill, { scaleY: 1 });
+        if (fill) gsap.set(fill, { scaleX: 1 });
         return;
       }
 
@@ -59,8 +60,8 @@ export default function Timeline({ entries }: TimelineProps): React.JSX.Element 
         dots.forEach((d, i) => d.classList.toggle('is-active', i === index));
       };
 
-      gsap.set(panels, { autoAlpha: 0, yPercent: 100 });
-      gsap.set(panels[0], { autoAlpha: 1, yPercent: 0 });
+      gsap.set(panels, { autoAlpha: 0, xPercent: 100 });
+      gsap.set(panels[0], { autoAlpha: 1, xPercent: 0 });
       setActive(0);
 
       const steps = panels.length - 1;
@@ -80,13 +81,13 @@ export default function Timeline({ entries }: TimelineProps): React.JSX.Element 
       });
 
       if (fill) {
-        tl.fromTo(fill, { scaleY: 0 }, { scaleY: 1, ease: 'none', duration: steps }, 0);
+        tl.fromTo(fill, { scaleX: 0 }, { scaleX: 1, ease: 'none', duration: steps }, 0);
       }
 
       for (let i = 1; i < panels.length; i += 1) {
-        tl.to(panels[i - 1], { autoAlpha: 0, yPercent: -100 }, i - 1).to(
+        tl.to(panels[i - 1], { autoAlpha: 0, xPercent: -100 }, i - 1).to(
           panels[i],
-          { autoAlpha: 1, yPercent: 0 },
+          { autoAlpha: 1, xPercent: 0 },
           i - 1,
         );
       }
