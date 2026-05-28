@@ -57,7 +57,7 @@ export interface SiteConfig {
 }
 
 export const siteConfig: SiteConfig = {
-  name: 'RJ Candoy',
+  name: 'Rosel John Candoy',
   role: 'Application Developer',
   tagline: 'Building thoughtful software for ~10 years — .NET, modern web, and AI/LLM.',
   summary:

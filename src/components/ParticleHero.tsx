@@ -14,17 +14,27 @@ function ParticleText({ text, color }: ParticleTextProps): React.JSX.Element | n
   const pointer = useRef(new THREE.Vector2(0, 0));
 
   // Sample the text once into target positions, plus a randomized start cloud
-  // that particles fly in from.
+  // that particles fly in from. Generated at a fixed reference size; a group
+  // scale (below) fits it responsively to the viewport.
   const data = useMemo(() => {
     if (typeof document === 'undefined') return null;
-    const worldWidth = Math.min(viewport.width * 0.8, 12);
     const { positions, count } = sampleText({
       text,
       density: 4,
-      worldWidth,
+      worldWidth: 10,
       fontSize: 180,
     });
     if (count === 0) return null;
+
+    // bounding box of the formed text (centered on origin)
+    let maxX = 0;
+    let maxY = 0;
+    for (let i = 0; i < count; i++) {
+      maxX = Math.max(maxX, Math.abs(positions[i * 3]));
+      maxY = Math.max(maxY, Math.abs(positions[i * 3 + 1]));
+    }
+    const bboxW = maxX * 2 || 1;
+    const bboxH = maxY * 2 || 1;
 
     const start = new Float32Array(count * 3);
     const random = new Float32Array(count); // per-particle phase offset
@@ -34,9 +44,18 @@ function ParticleText({ text, color }: ParticleTextProps): React.JSX.Element | n
       start[i * 3 + 2] = (Math.random() - 0.5) * 10;
       random[i] = Math.random();
     }
-    return { targets: positions, start, random, count };
+    return { targets: positions, start, random, count, bboxW, bboxH };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text]);
+
+  // Scale the whole text so it always fits the visible viewport with margin,
+  // on both axes and at any aspect ratio (so it's never clipped).
+  const fitScale = useMemo(() => {
+    if (!data) return 1;
+    const maxW = viewport.width * 0.85;
+    const maxH = viewport.height * 0.5;
+    return Math.min(maxW / data.bboxW, maxH / data.bboxH);
+  }, [data, viewport.width, viewport.height]);
 
   const geometry = useMemo(() => {
     if (!data) return null;
@@ -99,16 +118,18 @@ function ParticleText({ text, color }: ParticleTextProps): React.JSX.Element | n
   if (!geometry) return null;
 
   return (
-    <points ref={pointsRef} geometry={geometry}>
-      <pointsMaterial
-        color={color}
-        size={0.045}
-        sizeAttenuation
-        transparent
-        opacity={0.9}
-        depthWrite={false}
-      />
-    </points>
+    <group scale={fitScale}>
+      <points ref={pointsRef} geometry={geometry}>
+        <pointsMaterial
+          color={color}
+          size={0.045}
+          sizeAttenuation
+          transparent
+          opacity={0.9}
+          depthWrite={false}
+        />
+      </points>
+    </group>
   );
 }
 

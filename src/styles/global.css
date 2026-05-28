@@ -190,8 +190,9 @@ main {
   margin: 0 0 1rem;
 }
 .hero__title {
-  font-size: clamp(2.5rem, 11vw, 8rem);
+  font-size: clamp(2.2rem, 8vw, 6rem);
   margin: 0;
+  text-wrap: balance;
   background: linear-gradient(120deg, var(--text), var(--accent-2));
   -webkit-background-clip: text;
   background-clip: text;
