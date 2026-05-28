@@ -455,7 +455,7 @@ main {
 .expshow--static .expshow__panel {
   position: relative;
   inset: auto;
-  padding-left: 0;
+  padding: 0;
 }
 
 /* Reduced-motion users get the static layout before JS hydrates (no pop). */
@@ -476,7 +476,31 @@ main {
   .expshow__panel {
     position: relative;
     inset: auto;
-    padding-left: 0;
+    padding: 0;
+    opacity: 1;
+  }
+}
+
+/* On small screens the pinned horizontal showcase is replaced by a plain,
+   fully readable stacked list (matches the JS matchMedia fallback). */
+@media (max-width: 767px) {
+  .expshow__pin {
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+  .expshow__rail {
+    display: none;
+  }
+  .expshow__panels {
+    height: auto;
+    display: grid;
+    gap: 3rem;
+  }
+  .expshow__panel {
+    position: relative;
+    inset: auto;
+    padding: 0;
     opacity: 1;
   }
 }

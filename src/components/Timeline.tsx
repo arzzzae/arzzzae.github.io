@@ -45,14 +45,16 @@ export default function Timeline({ entries }: TimelineProps): React.JSX.Element 
       const dots = gsap.utils.toArray<HTMLElement>('.expshow__dot', root);
       const fill = root.querySelector<HTMLElement>('.expshow__fill');
 
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      // Static fallback: stacked, fully visible, no pin.
-      if (prefersReduced || panels.length < 2) {
+      const applyStatic = (): void => {
         root.classList.add('expshow--static');
         gsap.set(panels, { autoAlpha: 1, xPercent: 0 });
         dots.forEach((d) => d.classList.add('is-active'));
         if (fill) gsap.set(fill, { scaleX: 1 });
+      };
+
+      // A single role never needs the pinned showcase.
+      if (panels.length < 2) {
+        applyStatic();
         return;
       }
 
@@ -60,37 +62,53 @@ export default function Timeline({ entries }: TimelineProps): React.JSX.Element 
         dots.forEach((d, i) => d.classList.toggle('is-active', i === index));
       };
 
-      gsap.set(panels, { autoAlpha: 0, xPercent: 100 });
-      gsap.set(panels[0], { autoAlpha: 1, xPercent: 0 });
-      setActive(0);
+      // Responsive: the pinned horizontal showcase is a desktop enhancement.
+      // On small screens (or for reduced-motion users) fall back to a plain
+      // stacked list so nothing is clipped by the pinned, fixed-height stage.
+      // gsap.matchMedia re-evaluates and cleans up automatically on resize.
+      const mm = gsap.matchMedia();
 
-      const steps = panels.length - 1;
-      const tl = gsap.timeline({
-        defaults: { ease: 'power2.inOut', duration: 1 },
-        scrollTrigger: {
-          trigger: root,
-          start: 'top top',
-          end: () => '+=' + steps * window.innerHeight,
-          pin: pinEl,
-          scrub: true,
-          snap: { snapTo: 1 / steps, duration: 0.25, ease: 'power1.inOut' },
-          onUpdate: (self) => {
-            setActive(Math.round(self.progress * steps));
-          },
-        },
+      mm.add('(max-width: 767px), (prefers-reduced-motion: reduce)', () => {
+        applyStatic();
+        return () => {
+          root.classList.remove('expshow--static');
+          dots.forEach((d) => d.classList.remove('is-active'));
+        };
       });
 
-      if (fill) {
-        tl.fromTo(fill, { scaleX: 0 }, { scaleX: 1, ease: 'none', duration: steps }, 0);
-      }
+      mm.add('(min-width: 768px) and (prefers-reduced-motion: no-preference)', () => {
+        gsap.set(panels, { autoAlpha: 0, xPercent: 100 });
+        gsap.set(panels[0], { autoAlpha: 1, xPercent: 0 });
+        setActive(0);
 
-      for (let i = 1; i < panels.length; i += 1) {
-        tl.to(panels[i - 1], { autoAlpha: 0, xPercent: -100 }, i - 1).to(
-          panels[i],
-          { autoAlpha: 1, xPercent: 0 },
-          i - 1,
-        );
-      }
+        const steps = panels.length - 1;
+        const tl = gsap.timeline({
+          defaults: { ease: 'power2.inOut', duration: 1 },
+          scrollTrigger: {
+            trigger: root,
+            start: 'top top',
+            end: () => '+=' + steps * window.innerHeight,
+            pin: pinEl,
+            scrub: true,
+            snap: { snapTo: 1 / steps, duration: 0.25, ease: 'power1.inOut' },
+            onUpdate: (self) => {
+              setActive(Math.round(self.progress * steps));
+            },
+          },
+        });
+
+        if (fill) {
+          tl.fromTo(fill, { scaleX: 0 }, { scaleX: 1, ease: 'none', duration: steps }, 0);
+        }
+
+        for (let i = 1; i < panels.length; i += 1) {
+          tl.to(panels[i - 1], { autoAlpha: 0, xPercent: -100 }, i - 1).to(
+            panels[i],
+            { autoAlpha: 1, xPercent: 0 },
+            i - 1,
+          );
+        }
+      });
     },
     { scope: container },
   );
