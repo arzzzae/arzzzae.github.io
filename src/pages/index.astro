@@ -178,7 +178,7 @@ const year = new Date().getFullYear();
           <ScrollReveal client:visible>
             <h2 class="section__title">Experience</h2>
           </ScrollReveal>
-          <Timeline client:visible entries={timelineEntries} />
+          <Timeline client:load entries={timelineEntries} />
         </section>
       )
     }

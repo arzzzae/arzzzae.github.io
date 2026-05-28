@@ -310,81 +310,174 @@ main {
   text-anchor: middle;
 }
 
-/* Timeline -----------------------------------------------------------------*/
-.timeline {
+/* Experience showcase (pinned, one job at a time) --------------------------*/
+.expshow {
   position: relative;
   margin-top: 2rem;
-  padding-left: 2rem;
 }
-.timeline__track {
+.expshow__pin {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.expshow__rail {
   position: absolute;
   left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1rem 0;
+}
+.expshow__track {
+  position: absolute;
   top: 0;
   bottom: 0;
   width: 2px;
   background: var(--surface-border);
+  overflow: hidden;
 }
-.timeline__progress {
+.expshow__fill {
   position: absolute;
   inset: 0;
   background: linear-gradient(var(--accent), var(--accent-2));
   transform-origin: top center;
+  transform: scaleY(0);
 }
-.timeline__list {
+.expshow__dot {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--surface-border);
+  box-shadow: 0 0 0 4px var(--bg);
+  transition:
+    transform 0.3s ease,
+    background 0.3s ease,
+    border-color 0.3s ease;
+}
+.expshow__dot.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: scale(1.45);
+}
+.expshow__panels {
+  position: relative;
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  gap: 2.5rem;
+  flex: 1;
+  height: 100%;
 }
-.timeline__item {
-  position: relative;
-}
-.timeline__node {
+.expshow__panel {
   position: absolute;
-  left: -2.45rem;
-  top: 0.4rem;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 4px var(--bg);
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding-left: 2.5rem;
+  will-change: transform, opacity;
 }
-.timeline__period {
-  font-size: 0.85rem;
+.expshow__content {
+  max-width: 48rem;
+}
+.expshow__index {
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.expshow__period {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
   color: var(--accent-2);
   letter-spacing: 0.05em;
 }
-.timeline__role {
-  font-size: 1.4rem;
-  margin: 0.25rem 0 0;
+.expshow__role {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  line-height: 1.1;
+  margin: 0.4rem 0 0;
 }
-.timeline__company {
+.expshow__company {
   color: var(--text-dim);
-  margin: 0 0 0.75rem;
+  margin: 0.4rem 0 1rem;
+  font-size: 1.05rem;
 }
-.timeline__body {
+.expshow__body {
   color: var(--text-dim);
+  margin: 0 0 1rem;
 }
-.timeline__highlights {
+.expshow__highlights {
   color: var(--text-dim);
   padding-left: 1.1rem;
+  margin: 0;
 }
-.timeline__stack {
+.expshow__highlights li {
+  margin-bottom: 0.3rem;
+}
+.expshow__stack {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   list-style: none;
   padding: 0;
-  margin: 0.75rem 0 0;
+  margin: 1.1rem 0 0;
 }
-.timeline__stack li {
+.expshow__stack li {
   font-size: 0.8rem;
   padding: 0.25rem 0.7rem;
   border-radius: 999px;
   background: var(--surface);
   border: 1px solid var(--surface-border);
   color: var(--text-dim);
+}
+
+/* Static fallback (reduced motion / single entry): plain stacked list. */
+.expshow--static .expshow__pin {
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.expshow--static .expshow__rail {
+  display: none;
+}
+.expshow--static .expshow__panels {
+  height: auto;
+  display: grid;
+  gap: 3rem;
+}
+.expshow--static .expshow__panel {
+  position: relative;
+  inset: auto;
+  padding-left: 0;
+}
+
+/* Reduced-motion users get the static layout before JS hydrates (no pop). */
+@media (prefers-reduced-motion: reduce) {
+  .expshow__pin {
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+  .expshow__rail {
+    display: none;
+  }
+  .expshow__panels {
+    height: auto;
+    display: grid;
+    gap: 3rem;
+  }
+  .expshow__panel {
+    position: relative;
+    inset: auto;
+    padding-left: 0;
+    opacity: 1;
+  }
 }
 
 /* Projects -----------------------------------------------------------------*/
