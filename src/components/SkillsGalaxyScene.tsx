@@ -165,6 +165,16 @@ export default function SkillsGalaxyScene({
     return 'normal';
   };
 
+  // Skill (moon) labels are hidden by default to reduce crowding in dense
+  // clusters; a cluster reveals its skill labels on hover, focus, or search.
+  const skillLabelVisible = (nd: GNode): boolean => {
+    if (nd.isHub) return true;
+    if (q) return nd.label.toLowerCase().includes(q);
+    if (hoveredId) return nd.groupId === hoveredGroup;
+    if (focusGroupId) return nd.groupId === focusGroupId;
+    return false;
+  };
+
   const textColor = colors.text || '#e9eefb';
 
   return (
@@ -180,6 +190,7 @@ export default function SkillsGalaxyScene({
         edges={edges}
         visibleGroups={visibleGroups}
         emphasisFor={emphasisFor}
+        skillLabelVisible={skillLabelVisible}
         textColor={textColor}
         bg={colors.bg || '#05060a'}
         reduced={reduced}
@@ -196,6 +207,7 @@ interface ContentsProps {
   edges: GEdge[];
   visibleGroups: Set<string>;
   emphasisFor: (nd: GNode) => Emphasis;
+  skillLabelVisible: (nd: GNode) => boolean;
   textColor: string;
   bg: string;
   reduced: boolean;
@@ -209,6 +221,7 @@ function SceneContents({
   edges,
   visibleGroups,
   emphasisFor,
+  skillLabelVisible,
   textColor,
   bg,
   reduced,
@@ -258,7 +271,8 @@ function SceneContents({
           const emphasis = emphasisFor(nd);
           const meshOpacity = emphasis === 'dim' ? 0.18 : 1;
           const emissive = emphasis === 'emphasized' ? 1.6 : emphasis === 'dim' ? 0.15 : 0.7;
-          const labelOpacity = emphasis === 'dim' ? 0.12 : emphasis === 'emphasized' ? 1 : 0.7;
+          const baseLabelOpacity = emphasis === 'dim' ? 0.12 : emphasis === 'emphasized' ? 1 : 0.7;
+          const labelOpacity = skillLabelVisible(nd) ? baseLabelOpacity : 0;
           const fontSize = nd.isHub ? 0.5 : 0.3;
           return (
             <group key={nd.id} position={nd.pos}>

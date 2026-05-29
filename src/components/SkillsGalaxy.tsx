@@ -191,7 +191,7 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
             </button>
           )}
           <p className="skills3d__hint" aria-hidden="true">
-            Drag to orbit · click a hub to focus · hover to highlight
+            Drag to orbit · hover or click a cluster to reveal its skills
           </p>
         </div>
       )}
