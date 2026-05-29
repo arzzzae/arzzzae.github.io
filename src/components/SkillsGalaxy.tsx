@@ -24,6 +24,10 @@ interface SkillsGalaxyProps {
  */
 export const SKILL_HUES = [212, 268, 150, 28, 330, 188, 96, 312];
 
+/**
+ * Per-category accent color from the shared hue. Lightness/saturation are tuned
+ * for the dark scene; the light theme overrides these in CSS for contrast.
+ */
 export function categoryHsl(index: number): string {
   return `hsl(${SKILL_HUES[index % SKILL_HUES.length] ?? 212} 70% 62%)`;
 }
@@ -130,7 +134,7 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
               key={g.id}
               type="button"
               className="skills3d__chip"
-              style={{ '--chip': categoryHsl(i) } as React.CSSProperties}
+              style={{ '--chip-h': String(SKILL_HUES[i % SKILL_HUES.length] ?? 212) } as React.CSSProperties}
               aria-pressed={visible.has(g.id)}
               onClick={() => toggleGroup(g.id)}
             >

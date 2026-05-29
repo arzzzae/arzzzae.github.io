@@ -339,6 +339,7 @@ main {
   gap: 0.5rem;
 }
 .skills3d__chip {
+  --chip: hsl(var(--chip-h, 212) 70% 62%);
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
@@ -374,6 +375,19 @@ main {
 }
 .skills3d__chip[aria-pressed='false'] {
   opacity: 0.45;
+}
+/* Light theme: deepen the chip color and soften the glow for contrast. */
+html[data-theme='light'] .skills3d__chip {
+  --chip: hsl(var(--chip-h, 212) 65% 42%);
+}
+html[data-theme='light'] .skills3d__chip::before {
+  box-shadow: none;
+}
+html[data-theme='light'] .skills3d__chip[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--chip, var(--accent)) 12%, transparent);
+}
+html[data-theme='light'] .skills3d__chip[aria-pressed='false'] {
+  opacity: 0.55;
 }
 .skills3d__search {
   display: flex;
