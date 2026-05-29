@@ -28,7 +28,7 @@
     "id": "languages",
     "group": "Languages",
     "weight": 8,
-    "items": ["C#", "TypeScript", "JavaScript", "Python"]
+    "items": ["C#", "TypeScript", "JavaScript", "Python", "Visual Basic"]
   },
   {
     "id": "cloud",
@@ -51,7 +51,14 @@
     "id": "data",
     "group": "Databases",
     "weight": 5,
-    "items": ["SQL Server", "Relational DBs", "Document stores"]
+    "items": [
+      "SQL Server",
+      "MySQL",
+      "MongoDB",
+      "Cosmos DB",
+      "Relational DBs",
+      "Document stores"
+    ]
   },
   {
     "id": "integrations",
