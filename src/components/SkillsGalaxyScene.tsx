@@ -24,6 +24,9 @@ interface SceneProps {
   reduced: boolean;
   colors: GalaxyColors;
   titleRef: React.RefObject<HTMLDivElement | null>;
+  resetNonce: number;
+  onUserInteract: () => void;
+  onReset: () => void;
   onReady?: () => void;
 }
 
@@ -146,6 +149,9 @@ export default function SkillsGalaxyScene({
   reduced,
   colors,
   titleRef,
+  resetNonce,
+  onUserInteract,
+  onReset,
   onReady,
 }: SceneProps): React.JSX.Element {
   const { nodes, edges } = useMemo(() => buildLayout(groups), [groups]);
@@ -186,7 +192,10 @@ export default function SkillsGalaxyScene({
       dpr={[1, 1.75]}
       camera={{ position: [0, 24, 11], fov: 50 }}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-      onPointerMissed={() => setFocusGroupId(null)}
+      onPointerMissed={(e) => {
+        // Only a plain left-click on empty space resets; right-drag pans.
+        if ((e as MouseEvent).button === 0) onReset();
+      }}
       onCreated={() => onReady?.()}
     >
       <SceneContents
@@ -202,6 +211,8 @@ export default function SkillsGalaxyScene({
         setHoveredId={setHoveredId}
         setFocusGroupId={setFocusGroupId}
         titleRef={titleRef}
+        resetNonce={resetNonce}
+        onUserInteract={onUserInteract}
       />
     </Canvas>
   );
@@ -220,6 +231,8 @@ interface ContentsProps {
   setHoveredId: (id: string | null) => void;
   setFocusGroupId: (id: string | null) => void;
   titleRef: React.RefObject<HTMLDivElement | null>;
+  resetNonce: number;
+  onUserInteract: () => void;
 }
 
 function SceneContents({
@@ -235,6 +248,8 @@ function SceneContents({
   setHoveredId,
   setFocusGroupId,
   titleRef,
+  resetNonce,
+  onUserInteract,
 }: ContentsProps): React.JSX.Element {
   const controlsRef = useRef<ControlsLike | null>(null);
   const draggingRef = useRef(false);
@@ -340,13 +355,16 @@ function SceneContents({
         makeDefault
         enableDamping
         dampingFactor={0.08}
-        enablePan={false}
+        enablePan
+        screenSpacePanning
         minDistance={7}
         maxDistance={46}
         autoRotate={!reduced}
         autoRotateSpeed={0.16}
         onStart={() => {
           draggingRef.current = true;
+          // Any manual orbit/zoom counts as moving away from the start view.
+          onUserInteract();
         }}
         onEnd={() => {
           draggingRef.current = false;
@@ -359,6 +377,7 @@ function SceneContents({
         controlsRef={controlsRef}
         draggingRef={draggingRef}
         titleRef={titleRef}
+        resetNonce={resetNonce}
       />
     </>
   );
@@ -371,6 +390,7 @@ interface RigProps {
   controlsRef: React.MutableRefObject<ControlsLike | null>;
   draggingRef: React.MutableRefObject<boolean>;
   titleRef: React.RefObject<HTMLDivElement | null>;
+  resetNonce: number;
 }
 
 function CameraRig({
@@ -380,6 +400,7 @@ function CameraRig({
   controlsRef,
   draggingRef,
   titleRef,
+  resetNonce,
 }: RigProps): null {
   const { camera, size } = useThree();
   const settled = useRef(false);
@@ -396,6 +417,14 @@ function CameraRig({
     settled.current = false;
     homeSettled.current = false;
   }, [focusGroupId]);
+
+  useEffect(() => {
+    // Reset requested (button / right-click / empty click): force a fly-home
+    // even if the user had previously settled the overview by dragging.
+    if (resetNonce === 0) return;
+    settled.current = false;
+    homeSettled.current = false;
+  }, [resetNonce]);
 
   useFrame(() => {
     const c = controlsRef.current;
@@ -429,11 +458,9 @@ function CameraRig({
           c.target.lerp(ORIGIN, 0.06);
           if (camera.position.distanceTo(HOME) < 0.25) homeSettled.current = true;
         }
-      } else if (reduced) {
-        c.target.set(0, 0, 0);
-      } else {
-        c.target.lerp(ORIGIN, 0.05);
       }
+      // Once settled at home we stop forcing the target so the user can freely
+      // orbit AND pan (right-drag) the overview; Reset returns to ORIGIN/HOME.
     } else {
       // User is dragging the overview — let them; don't fight their orbit.
       homeSettled.current = true;

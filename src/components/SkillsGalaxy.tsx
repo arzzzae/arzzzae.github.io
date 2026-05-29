@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CanvasLoader from './CanvasLoader';
 
 export interface SkillGroup {
@@ -79,10 +79,23 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [focusGroupId, setFocusGroupId] = useState<string | null>(null);
   const [sceneReady, setSceneReady] = useState(false);
+  // `moved` becomes true as soon as the user orbits/zooms away from the initial
+  // birds-eye view, so the Reset control appears even without focusing a cluster.
+  // Bumping `resetNonce` signals the scene to fly the camera back home.
+  const [moved, setMoved] = useState(false);
+  const [resetNonce, setResetNonce] = useState(0);
+  const handleReset = useCallback(() => {
+    setFocusGroupId(null);
+    setMoved(false);
+    setResetNonce((n) => n + 1);
+  }, []);
 
   // Pinned corner title for the focused cluster. The scene animates this
   // element from the hub node to the corner (and back) every frame via its ref.
   const titleRef = useRef<HTMLDivElement>(null);
+  // Tracks a right-button press so we can tell a quick right-click (reset) from
+  // a right-drag (pan): { x, y } at press, and whether it moved past threshold.
+  const rightPress = useRef<{ x: number; y: number; moved: boolean } | null>(null);
   const [titleName, setTitleName] = useState('');
   useEffect(() => {
     // Keep the last focused name while the title animates back into the node.
@@ -176,11 +189,27 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
         <div
           className={`skills3d__stage ${sceneReady ? 'is-ready' : ''}`}
           data-lenis-prevent=""
+          onPointerDown={(e) => {
+            if (e.button === 2) rightPress.current = { x: e.clientX, y: e.clientY, moved: false };
+          }}
+          onPointerMove={(e) => {
+            const rp = rightPress.current;
+            if (rp && !rp.moved && Math.hypot(e.clientX - rp.x, e.clientY - rp.y) > 6) {
+              rp.moved = true;
+            }
+          }}
+          onPointerUp={(e) => {
+            // A right-button release that didn't drag is a "reset" click; a
+            // right-drag is a camera pan (handled by OrbitControls) — leave it.
+            if (e.button === 2 && rightPress.current && !rightPress.current.moved) {
+              handleReset();
+            }
+            if (e.button === 2) rightPress.current = null;
+          }}
           onContextMenu={(e) => {
-            // Right-click anywhere over the galaxy returns to the birds-eye
-            // overview (and suppresses the native context menu over the canvas).
+            // Suppress the native context menu so right-drag panning and
+            // right-click reset feel like first-class galaxy controls.
             e.preventDefault();
-            setFocusGroupId(null);
           }}
         >
           <Suspense fallback={null}>
@@ -195,6 +224,9 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
               reduced={reduced}
               colors={colors}
               titleRef={titleRef}
+              resetNonce={resetNonce}
+              onUserInteract={() => setMoved(true)}
+              onReset={handleReset}
               onReady={() => setSceneReady(true)}
             />
           </Suspense>
@@ -202,17 +234,17 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
           <div ref={titleRef} className="skills3d__title" aria-hidden="true">
             {titleName}
           </div>
-          {focusGroupId && (
+          {(focusGroupId || moved) && (
             <button
               type="button"
               className="skills3d__reset"
-              onClick={() => setFocusGroupId(null)}
+              onClick={handleReset}
             >
               Reset view
             </button>
           )}
           <p className="skills3d__hint" aria-hidden="true">
-            Drag to orbit · click a cluster to focus · right-click or click empty space to reset
+            Drag to orbit · right-drag to pan · click a cluster to focus · right-click to reset
           </p>
         </div>
       )}
