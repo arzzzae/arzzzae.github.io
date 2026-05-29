@@ -114,14 +114,25 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
   useEffect(() => {
     setReduced(prefersReducedMotion());
     setSupported(hasWebGL());
-    const cs = getComputedStyle(document.documentElement);
-    const read = (name: string, fallback: string): string =>
-      cs.getPropertyValue(name).trim() || fallback;
-    setColors({
-      text: read('--text', '#e9eefb'),
-      dim: read('--text-dim', '#9aa6c2'),
-      bg: read('--bg', '#05060a'),
+    const readColors = (): void => {
+      const cs = getComputedStyle(document.documentElement);
+      const read = (name: string, fallback: string): string =>
+        cs.getPropertyValue(name).trim() || fallback;
+      setColors({
+        text: read('--text', '#e9eefb'),
+        dim: read('--text-dim', '#9aa6c2'),
+        bg: read('--bg', '#05060a'),
+      });
+    };
+    readColors();
+    // Re-read the palette whenever the theme flips (data-theme on <html>) so the
+    // 3D galaxy's label/edge colors track light/dark mode like the rest of the UI.
+    const observer = new MutationObserver(readColors);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
     });
+    return () => observer.disconnect();
   }, []);
 
   const toggleGroup = (id: string): void =>

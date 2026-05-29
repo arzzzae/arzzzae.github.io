@@ -293,7 +293,11 @@ function SceneContents({
           const emphasis = emphasisFor(nd);
           const meshOpacity = emphasis === 'dim' ? 0.18 : 1;
           const emissive = emphasis === 'emphasized' ? 1.6 : emphasis === 'dim' ? 0.15 : 0.7;
-          const baseLabelOpacity = emphasis === 'dim' ? 0.12 : emphasis === 'emphasized' ? 1 : 0.7;
+          // Hub labels are the primary navigation cues, so keep them fully
+          // opaque in the overview (0.7 read as muddy grey on the dark sky);
+          // skill (moon) labels stay lighter to reduce crowding.
+          const baseLabelOpacity =
+            emphasis === 'dim' ? 0.12 : emphasis === 'emphasized' ? 1 : nd.isHub ? 1 : 0.7;
           // The focused hub's label is lifted out into the pinned corner title,
           // so hide its in-scene label to avoid the big text overlapping skills.
           const isFocusedHub = nd.isHub && nd.groupId === focusGroupId;
@@ -332,16 +336,17 @@ function SceneContents({
                   metalness={0.1}
                 />
               </mesh>
-              <Billboard position={[0, nd.r + (nd.isHub ? 0.42 : 0.26), 0]}>
+              <Billboard position={[0, nd.r + (nd.isHub ? 0.72 : 0.32), 0]}>
                 <Text
                   fontSize={fontSize}
                   color={textColor}
                   anchorX="center"
                   anchorY="middle"
                   fillOpacity={labelOpacity}
-                  outlineWidth={0.012}
+                  outlineWidth={nd.isHub ? 0.03 : 0.016}
                   outlineColor={bg}
-                  outlineOpacity={labelOpacity}
+                  outlineOpacity={Math.min(1, labelOpacity + 0.25)}
+                  outlineBlur={nd.isHub ? '28%' : '18%'}
                 >
                   {nd.label}
                 </Text>
