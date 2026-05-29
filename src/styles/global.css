@@ -319,8 +319,13 @@ main {
   position: relative;
   height: 100vh;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  padding-top: clamp(3rem, 8vh, 5.5rem);
   overflow: hidden;
+}
+.expshow__heading {
+  margin: 0 0 clamp(1.25rem, 3vh, 2.25rem);
+  padding: 0 2.5rem;
 }
 .expshow__rail {
   position: absolute;
@@ -373,14 +378,13 @@ main {
   margin: 0;
   padding: 0;
   flex: 1;
-  height: 100%;
 }
 .expshow__panel {
   position: absolute;
   inset: 0;
   display: flex;
-  align-items: center;
-  padding: 0 2.5rem 6rem;
+  align-items: flex-start;
+  padding: 0 2.5rem 5rem;
   will-change: transform, opacity;
 }
 .expshow__content {
@@ -457,6 +461,9 @@ main {
   inset: auto;
   padding: 0;
 }
+.expshow--static .expshow__heading {
+  padding: 0;
+}
 
 /* Reduced-motion users get the static layout before JS hydrates (no pop). */
 @media (prefers-reduced-motion: reduce) {
@@ -464,6 +471,10 @@ main {
     height: auto;
     display: block;
     overflow: visible;
+    padding-top: 0;
+  }
+  .expshow__heading {
+    padding: 0;
   }
   .expshow__rail {
     display: none;
@@ -488,6 +499,10 @@ main {
     height: auto;
     display: block;
     overflow: visible;
+    padding-top: 0;
+  }
+  .expshow__heading {
+    padding: 0;
   }
   .expshow__rail {
     display: none;

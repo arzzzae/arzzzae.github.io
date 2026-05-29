@@ -175,10 +175,7 @@ const year = new Date().getFullYear();
     {
       has('experience') && (
         <section id="experience" class="section experience">
-          <ScrollReveal client:visible>
-            <h2 class="section__title">Experience</h2>
-          </ScrollReveal>
-          <Timeline client:load entries={timelineEntries} />
+          <Timeline client:load heading="Experience" entries={timelineEntries} />
         </section>
       )
     }

@@ -18,6 +18,8 @@ export interface TimelineEntry {
 
 interface TimelineProps {
   entries: TimelineEntry[];
+  /** Optional section heading rendered inside the pinned stage. */
+  heading?: string;
 }
 
 /**
@@ -31,7 +33,7 @@ interface TimelineProps {
  * component falls back to a plain, statically stacked list with everything
  * visible and no pinning.
  */
-export default function Timeline({ entries }: TimelineProps): React.JSX.Element {
+export default function Timeline({ entries, heading }: TimelineProps): React.JSX.Element {
   const container = useRef<HTMLDivElement>(null);
   const pin = useRef<HTMLDivElement>(null);
 
@@ -116,6 +118,7 @@ export default function Timeline({ entries }: TimelineProps): React.JSX.Element 
   return (
     <div ref={container} className={`expshow${entries.length < 2 ? ' expshow--static' : ''}`}>
       <div ref={pin} className="expshow__pin">
+        {heading && <h2 className="section__title expshow__heading">{heading}</h2>}
         <div className="expshow__rail" aria-hidden="true">
           <span className="expshow__track">
             <span className="expshow__fill" />
