@@ -66,8 +66,8 @@ export const siteConfig: SiteConfig = {
     'pre-teens, scripting in-game events in the Warcraft III World Editor. I move fast and ' +
     'adapt quickly — which has let me work across .NET (MVC, Web API, Blazor, WinUI3, MAUI), ' +
     'modern JavaScript (React, Angular, Vue), relational and document databases, and Microsoft ' +
-    'Azure. Lately I build with Python and Flask, weaving AI/LLM tooling (embeddings, chat ' +
-    'completions) into my workflow to ship faster.',
+    'Azure. Lately I build with Python and Flask, weaving AI/LLM tooling ' +
+    'into my workflow to ship faster.',
   email: 'r.johncandoy@outlook.com',
   githubUsername: 'arzzzae',
   resumeUrl: '/resume.pdf',
