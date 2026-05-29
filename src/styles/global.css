@@ -298,6 +298,9 @@ main {
   gap: 0.5rem;
 }
 .skills3d__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   font-size: 0.85rem;
   padding: 0.35rem 0.85rem;
   border-radius: 999px;
@@ -311,17 +314,25 @@ main {
     background 0.2s ease,
     opacity 0.2s ease;
 }
+.skills3d__chip::before {
+  content: '';
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--chip, var(--accent));
+  box-shadow: 0 0 6px var(--chip, var(--accent));
+}
 .skills3d__chip:hover {
   color: var(--text);
-  border-color: var(--accent);
+  border-color: var(--chip, var(--accent));
 }
 .skills3d__chip[aria-pressed='true'] {
   color: var(--text);
-  border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  border-color: var(--chip, var(--accent));
+  background: color-mix(in srgb, var(--chip, var(--accent)) 18%, transparent);
 }
 .skills3d__chip[aria-pressed='false'] {
-  opacity: 0.5;
+  opacity: 0.45;
 }
 .skills3d__search {
   display: flex;

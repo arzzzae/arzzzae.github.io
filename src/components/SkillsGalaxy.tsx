@@ -17,6 +17,16 @@ interface SkillsGalaxyProps {
   groups: SkillGroup[];
 }
 
+/**
+ * Per-category hue palette (degrees). Shared between the HTML filter chips and
+ * the 3D nodes so each category has one consistent, unique color.
+ */
+export const SKILL_HUES = [212, 268, 150, 28, 330, 188, 96, 312];
+
+export function categoryHsl(index: number): string {
+  return `hsl(${SKILL_HUES[index % SKILL_HUES.length] ?? 212} 70% 62%)`;
+}
+
 const SkillsGalaxyScene = lazy(() => import('./SkillsGalaxyScene'));
 
 /** Defensive WebGL capability check (server-safe). */
@@ -106,11 +116,12 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
     <div className="skills3d">
       <div className="skills3d__controls">
         <div className="skills3d__chips" role="group" aria-label="Filter skills by category">
-          {groups.map((g) => (
+          {groups.map((g, i) => (
             <button
               key={g.id}
               type="button"
               className="skills3d__chip"
+              style={{ '--chip': categoryHsl(i) } as React.CSSProperties}
               aria-pressed={visible.has(g.id)}
               onClick={() => toggleGroup(g.id)}
             >
@@ -138,7 +149,7 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
       </div>
 
       {supported && (
-        <div className="skills3d__stage">
+        <div className="skills3d__stage" data-lenis-prevent="">
           <Suspense fallback={null}>
             <SkillsGalaxyScene
               groups={groups}

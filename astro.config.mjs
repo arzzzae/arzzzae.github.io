@@ -10,7 +10,9 @@ export default defineConfig({
   vite: {
     ssr: {
       // three.js ships ESM that should not be externalized during SSR build.
-      noExternal: ['three', '@react-three/fiber', '@react-three/drei'],
+      // detect-gpu is a CommonJS dep pulled in by drei; bundling it lets Vite
+      // apply CJS<->ESM interop so its named exports resolve in the dev SSR.
+      noExternal: ['three', '@react-three/fiber', '@react-three/drei', 'detect-gpu'],
     },
   },
 });

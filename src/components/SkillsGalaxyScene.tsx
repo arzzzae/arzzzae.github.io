@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Billboard, Line, OrbitControls, Stars, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import type { SkillGroup, GalaxyColors } from './SkillsGalaxy';
+import { SKILL_HUES } from './SkillsGalaxy';
 
 /** Minimal shape of the drei/three OrbitControls instance we touch. */
 interface ControlsLike {
@@ -42,7 +43,6 @@ interface GEdge {
 }
 
 const ORIGIN = new THREE.Vector3(0, 0, 0);
-const HUE_PALETTE = [212, 268, 150, 28, 330, 188, 96, 312];
 
 /** Tiny deterministic PRNG so the galaxy layout is stable across renders. */
 function mulberry32(seed: number): () => number {
@@ -73,12 +73,12 @@ function hashSeed(s: string): number {
 function buildLayout(groups: SkillGroup[]): { nodes: GNode[]; edges: GEdge[] } {
   const nodes: GNode[] = [];
   const edges: GEdge[] = [];
-  const discR = 6.2;
+  const discR = 8.6;
   const n = Math.max(groups.length, 1);
 
   groups.forEach((group, gi) => {
     const color = new THREE.Color().setHSL(
-      (HUE_PALETTE[gi % HUE_PALETTE.length] ?? 210) / 360,
+      (SKILL_HUES[gi % SKILL_HUES.length] ?? 210) / 360,
       0.7,
       0.62,
     );
@@ -86,7 +86,7 @@ function buildLayout(groups: SkillGroup[]): { nodes: GNode[]; edges: GEdge[] } {
     const rng = mulberry32(hashSeed(group.id));
     const hub = new THREE.Vector3(
       Math.cos(angle) * discR,
-      (rng() - 0.5) * 1.4,
+      (rng() - 0.5) * 1.6,
       Math.sin(angle) * discR,
     );
     const hubId = `hub-${group.id}`;
@@ -96,11 +96,11 @@ function buildLayout(groups: SkillGroup[]): { nodes: GNode[]; edges: GEdge[] } {
       groupId: group.id,
       isHub: true,
       pos: hub,
-      r: 0.34 + group.weight * 0.035,
+      r: 0.4 + Math.min(group.items.length, 14) * 0.06,
       color,
     });
 
-    const clusterR = 1.5 + Math.min(group.items.length, 12) * 0.12;
+    const clusterR = 2.4 + Math.min(group.items.length, 12) * 0.2;
     group.items.forEach((item, ii) => {
       // even-ish spherical scatter with jitter, flattened on Y for the disc look
       const u = rng();
@@ -168,7 +168,7 @@ export default function SkillsGalaxyScene({
   return (
     <Canvas
       dpr={[1, 1.75]}
-      camera={{ position: [0, 4.5, 15], fov: 55 }}
+      camera={{ position: [0, 24, 11], fov: 50 }}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
       onPointerMissed={() => setFocusGroupId(null)}
     >
@@ -230,16 +230,10 @@ function SceneContents({
   return (
     <>
       <color attach="background" args={[bg]} />
-      <fog attach="fog" args={[bg, 14, 30]} />
+      <fog attach="fog" args={[bg, 24, 58]} />
       <ambientLight intensity={0.6} />
-      <pointLight position={[0, 6, 8]} intensity={60} distance={60} decay={2} />
-      <Stars radius={60} depth={40} count={1400} factor={3.2} saturation={0} fade speed={0.6} />
-
-      {/* galactic core glow */}
-      <mesh>
-        <sphereGeometry args={[0.55, 24, 24]} />
-        <meshBasicMaterial color="#9ec3ff" transparent opacity={0.22} />
-      </mesh>
+      <pointLight position={[0, 14, 10]} intensity={120} distance={90} decay={2} />
+      <Stars radius={90} depth={50} count={1800} factor={3.6} saturation={0} fade speed={0.6} />
 
       {visibleEdges.map((e, i) => {
         const dim = focusGroupId && e.groupId !== focusGroupId;
@@ -316,10 +310,10 @@ function SceneContents({
         enableDamping
         dampingFactor={0.08}
         enablePan={false}
-        minDistance={5}
-        maxDistance={26}
+        minDistance={7}
+        maxDistance={46}
         autoRotate={!reduced}
-        autoRotateSpeed={0.45}
+        autoRotateSpeed={0.16}
         onStart={() => {
           draggingRef.current = true;
         }}
@@ -362,7 +356,7 @@ function CameraRig({ focusPos, focusGroupId, reduced, controlsRef, draggingRef }
 
     if (focusPos) {
       const outward = focusPos.clone().sub(ORIGIN).normalize();
-      const desired = focusPos.clone().add(outward.multiplyScalar(4)).add(new THREE.Vector3(0, 1.8, 0));
+      const desired = focusPos.clone().add(outward.multiplyScalar(5.5)).add(new THREE.Vector3(0, 4, 0));
       if (!settled.current) {
         if (reduced) camera.position.copy(desired);
         else camera.position.lerp(desired, 0.07);
