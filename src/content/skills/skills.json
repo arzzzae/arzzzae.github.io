@@ -22,7 +22,7 @@
     "id": "web",
     "group": "Web",
     "weight": 9,
-    "items": ["React", "Angular", "Vue", "jQuery", "HTML", "CSS", "Flask"]
+    "items": ["React", "Angular", "Vue", "jQuery", "HTML", "CSS", "Tailwind CSS", "Flask"]
   },
   {
     "id": "languages",
@@ -38,14 +38,24 @@
       "App Service",
       "Azure Functions",
       "Blob Storage",
-      "Communication Services"
+      "Communication Services",
+      "Application Insights",
+      "Edge CDN",
+      "AI Foundry"
     ]
   },
   {
     "id": "ai",
     "group": "AI / LLM",
     "weight": 6,
-    "items": ["Embeddings", "Chat completions", "RAG workflows"]
+    "items": [
+      "Embeddings",
+      "Chat completions",
+      "RAG workflows",
+      "GitHub Copilot",
+      "Claude Code",
+      "Google Antigravity"
+    ]
   },
   {
     "id": "data",
