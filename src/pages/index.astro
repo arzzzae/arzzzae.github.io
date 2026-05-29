@@ -20,7 +20,7 @@ import MagneticButton from '../components/MagneticButton';
 import ScrollReveal from '../components/ScrollReveal';
 import Timeline, { type TimelineEntry } from '../components/Timeline';
 import ProjectCard from '../components/ProjectCard';
-import SkillsConstellation, { type SkillGroup } from '../components/SkillsConstellation';
+import SkillsGalaxy, { type SkillGroup } from '../components/SkillsGalaxy';
 
 // --- Load content (build time) ---
 const experienceEntries = (await getCollection('experience')).sort(
@@ -167,7 +167,7 @@ const year = new Date().getFullYear();
               A decade across .NET, modern web, cloud, and AI/LLM.
             </p>
           </ScrollReveal>
-          <SkillsConstellation client:visible groups={skillGroups} />
+          <SkillsGalaxy client:visible groups={skillGroups} />
         </section>
       )
     }

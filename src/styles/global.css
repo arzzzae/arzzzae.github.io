@@ -280,34 +280,163 @@ main {
   }
 }
 
-/* Skills constellation -----------------------------------------------------*/
-.constellation {
-  width: 100%;
-  height: auto;
+/* Skills galaxy ------------------------------------------------------------*/
+.skills3d {
   margin-top: 2rem;
 }
-.constellation__edges line {
-  stroke: var(--accent);
-  stroke-width: 1;
-  opacity: 0.25;
+.skills3d__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
 }
-.constellation__node circle {
-  fill: var(--accent-2);
+.skills3d__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
-.constellation__node.is-hub circle {
-  fill: var(--accent);
-  filter: drop-shadow(0 0 8px var(--glare));
+.skills3d__chip {
+  font-size: 0.85rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    opacity 0.2s ease;
 }
-.constellation__label {
-  fill: var(--text-dim);
-  font-size: 13px;
-  text-anchor: middle;
+.skills3d__chip:hover {
+  color: var(--text);
+  border-color: var(--accent);
 }
-.constellation__hub-label {
-  fill: var(--text);
-  font-size: 16px;
-  font-weight: 700;
-  text-anchor: middle;
+.skills3d__chip[aria-pressed='true'] {
+  color: var(--text);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.skills3d__chip[aria-pressed='false'] {
+  opacity: 0.5;
+}
+.skills3d__search {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.skills3d__input {
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  color: var(--text);
+  min-width: 12rem;
+}
+.skills3d__input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.skills3d__count {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  min-width: 5rem;
+}
+.skills3d__stage {
+  position: relative;
+  width: 100%;
+  height: clamp(420px, 62vh, 640px);
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid var(--surface-border);
+  background: radial-gradient(120% 120% at 50% 35%, rgba(126, 178, 255, 0.07), transparent 60%);
+}
+.skills3d__reset {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  color: var(--text);
+  cursor: pointer;
+}
+.skills3d__hint {
+  position: absolute;
+  left: 1rem;
+  bottom: 0.85rem;
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  color: var(--text-dim);
+  pointer-events: none;
+}
+.skills3d__list {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1rem;
+}
+.skills3d__list-group {
+  padding: 1rem 1.1rem;
+  border-radius: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+}
+.skills3d__list-group strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--text);
+}
+.skills3d__list-group span {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+/* When the galaxy is active the list stays in the DOM for assistive tech but
+   is removed from view. */
+.skills3d__list.is-visual {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+@media (max-width: 600px) {
+  .skills3d__controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .skills3d__input {
+    min-width: 0;
+    flex: 1;
+  }
 }
 
 /* Experience showcase (pinned, one job at a time) --------------------------*/

@@ -30,7 +30,7 @@ import ThemeToggle from './ThemeToggle';
 import MagneticButton from './MagneticButton';
 import ProjectCard from './ProjectCard';
 import Timeline from './Timeline';
-import SkillsConstellation from './SkillsConstellation';
+import SkillsGalaxy from './SkillsGalaxy';
 import type { Project } from '../lib/githubRepos';
 
 // happy-dom has no matchMedia; provide a stub.
@@ -112,14 +112,16 @@ describe('component smoke tests', () => {
     expect(screen.getByText('Did things')).toBeInTheDocument();
   });
 
-  it('SkillsConstellation renders hub and item labels', () => {
+  it('SkillsGalaxy renders an accessible grouped skills list', () => {
     render(
-      <SkillsConstellation
+      <SkillsGalaxy
         groups={[{ id: 'web', group: 'Web', weight: 8, items: ['React', 'Vue'] }]}
       />,
     );
-    expect(screen.getByText('Web')).toBeInTheDocument();
-    expect(screen.getByText('React')).toBeInTheDocument();
-    expect(screen.getByText('Vue')).toBeInTheDocument();
+    // Without WebGL (happy-dom) the component renders its accessible fallback.
+    expect(screen.getByText(/React/)).toBeInTheDocument();
+    expect(screen.getByText(/Vue/)).toBeInTheDocument();
+    // Filter chip is a real toggle button.
+    expect(screen.getByRole('button', { name: 'Web' })).toHaveAttribute('aria-pressed', 'true');
   });
 });
