@@ -23,6 +23,7 @@ interface SceneProps {
   setFocusGroupId: (id: string | null) => void;
   reduced: boolean;
   colors: GalaxyColors;
+  onReady?: () => void;
 }
 
 interface GNode {
@@ -141,6 +142,7 @@ export default function SkillsGalaxyScene({
   setFocusGroupId,
   reduced,
   colors,
+  onReady,
 }: SceneProps): React.JSX.Element {
   const { nodes, edges } = useMemo(() => buildLayout(groups), [groups]);
   const groupOfNode = useMemo(() => {
@@ -171,6 +173,7 @@ export default function SkillsGalaxyScene({
       camera={{ position: [0, 24, 11], fov: 50 }}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
       onPointerMissed={() => setFocusGroupId(null)}
+      onCreated={() => onReady?.()}
     >
       <SceneContents
         nodes={nodes}

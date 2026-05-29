@@ -1,4 +1,5 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import CanvasLoader from './CanvasLoader';
 
 export interface SkillGroup {
   id: string;
@@ -73,6 +74,14 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
   const [query, setQuery] = useState('');
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [focusGroupId, setFocusGroupId] = useState<string | null>(null);
+  const [sceneReady, setSceneReady] = useState(false);
+
+  // Safety net so the loader never hangs if the GL context fails to create.
+  useEffect(() => {
+    if (!supported) return;
+    const t = setTimeout(() => setSceneReady(true), 8000);
+    return () => clearTimeout(t);
+  }, [supported]);
 
   useEffect(() => {
     setReduced(prefersReducedMotion());
@@ -149,7 +158,10 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
       </div>
 
       {supported && (
-        <div className="skills3d__stage" data-lenis-prevent="">
+        <div
+          className={`skills3d__stage ${sceneReady ? 'is-ready' : ''}`}
+          data-lenis-prevent=""
+        >
           <Suspense fallback={null}>
             <SkillsGalaxyScene
               groups={groups}
@@ -161,8 +173,10 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
               setFocusGroupId={setFocusGroupId}
               reduced={reduced}
               colors={colors}
+              onReady={() => setSceneReady(true)}
             />
           </Suspense>
+          <CanvasLoader label="Charting the galaxy…" />
           {focusGroupId && (
             <button
               type="button"

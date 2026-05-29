@@ -1,7 +1,8 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Float, MeshDistortMaterial } from '@react-three/drei';
 import * as THREE from 'three';
+import CanvasLoader from './CanvasLoader';
 
 function FloatingKnot(): React.JSX.Element {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -51,18 +52,27 @@ function FloatingKnot(): React.JSX.Element {
  * into view. Lighting is simple and self-contained.
  */
 export default function CursorObject(): React.JSX.Element {
+  const [ready, setReady] = useState(false);
+  // Safety net: never leave the spinner running indefinitely if the WebGL
+  // context fails to initialize.
+  useEffect(() => {
+    const t = setTimeout(() => setReady(true), 8000);
+    return () => clearTimeout(t);
+  }, []);
   return (
-    <div className="cursor-object" aria-hidden="true">
+    <div className={`cursor-object ${ready ? 'is-ready' : ''}`} aria-hidden="true">
       <Canvas
         dpr={[1, 1.5]}
         camera={{ position: [0, 0, 5], fov: 45 }}
         gl={{ antialias: true, alpha: true }}
+        onCreated={() => setReady(true)}
       >
         <ambientLight intensity={0.6} />
         <directionalLight position={[3, 3, 5]} intensity={1.4} />
         <pointLight position={[-4, -2, 2]} intensity={0.8} color="#7fb2ff" />
         <FloatingKnot />
       </Canvas>
+      <CanvasLoader />
     </div>
   );
 }
