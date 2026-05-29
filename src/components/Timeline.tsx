@@ -84,17 +84,35 @@ export default function Timeline({ entries, heading }: TimelineProps): React.JSX
         setActive(0);
 
         const steps = panels.length - 1;
+        // A short, still "tail" of pinned scroll after the final panel settles.
+        // This keeps the last snap point away from the unpin boundary so the
+        // scroll never gets yanked backward at the very end (which briefly
+        // re-pinned the section and made the last role flash back into view).
+        const tail = 0.6;
+        const total = steps + tail;
+        const lastSnap = steps / total;
+        const snapPoints = Array.from({ length: steps + 1 }, (_, i) => i / total);
+        const directionalSnap = ScrollTrigger.snapDirectional(snapPoints);
+
         const tl = gsap.timeline({
           defaults: { ease: 'power2.inOut', duration: 1 },
           scrollTrigger: {
             trigger: root,
             start: 'top top',
-            end: () => '+=' + steps * window.innerHeight,
+            end: () => '+=' + total * window.innerHeight,
             pin: pinEl,
             scrub: true,
-            snap: { snapTo: 1 / steps, duration: 0.25, ease: 'power1.inOut' },
+            snap: {
+              // Snap to each role on the way in, but stop snapping once the
+              // final role is reached so the user can scroll out seamlessly.
+              snapTo: (value, self) =>
+                value >= lastSnap ? value : directionalSnap(value, self?.direction ?? 1),
+              duration: 0.25,
+              ease: 'power1.inOut',
+              inertia: false,
+            },
             onUpdate: (self) => {
-              setActive(Math.round(self.progress * steps));
+              setActive(Math.min(steps, Math.round(self.progress * total)));
             },
           },
         });
@@ -110,6 +128,10 @@ export default function Timeline({ entries, heading }: TimelineProps): React.JSX
             i - 1,
           );
         }
+
+        // Hold the final role in place for the tail so the timeline duration
+        // stays aligned with the (now longer) pinned scroll distance.
+        tl.to({}, { duration: tail }, steps);
       });
     },
     { scope: container },
