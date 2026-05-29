@@ -165,6 +165,12 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
         <div
           className={`skills3d__stage ${sceneReady ? 'is-ready' : ''}`}
           data-lenis-prevent=""
+          onContextMenu={(e) => {
+            // Right-click anywhere over the galaxy returns to the birds-eye
+            // overview (and suppresses the native context menu over the canvas).
+            e.preventDefault();
+            setFocusGroupId(null);
+          }}
         >
           <Suspense fallback={null}>
             <SkillsGalaxyScene
@@ -191,7 +197,7 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
             </button>
           )}
           <p className="skills3d__hint" aria-hidden="true">
-            Drag to orbit · hover or click a cluster to reveal its skills
+            Drag to orbit · click a cluster to focus · right-click or click empty space to reset
           </p>
         </div>
       )}

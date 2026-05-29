@@ -22,7 +22,7 @@
     "id": "web",
     "group": "Web",
     "weight": 9,
-    "items": ["React", "Angular", "Vue", "jQuery", "HTML", "CSS", "Tailwind CSS", "Flask"]
+    "items": ["React", "Angular", "Vue", "jQuery", "HTML", "CSS", "Tailwind CSS", "Node.js", "Flask"]
   },
   {
     "id": "languages",
@@ -74,6 +74,13 @@
     "id": "integrations",
     "group": "Integrations",
     "weight": 4,
-    "items": ["ConnectWise", "REST APIs", "SaaS integrations"]
+    "items": [
+      "ConnectWise",
+      "Dynamics GP",
+      "Microsoft 365",
+      "Microsoft Teams",
+      "Microsoft Graph",
+      "REST APIs"
+    ]
   }
 ]

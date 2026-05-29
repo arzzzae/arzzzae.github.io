@@ -44,6 +44,8 @@ interface GEdge {
 }
 
 const ORIGIN = new THREE.Vector3(0, 0, 0);
+// Initial birds-eye camera position; must match the <Canvas camera> prop below.
+const HOME = new THREE.Vector3(0, 24, 11);
 
 /** Tiny deterministic PRNG so the galaxy layout is stable across renders. */
 function mulberry32(seed: number): () => number {
@@ -360,16 +362,20 @@ interface RigProps {
 function CameraRig({ focusPos, focusGroupId, reduced, controlsRef, draggingRef }: RigProps): null {
   const { camera } = useThree();
   const settled = useRef(false);
+  const homeSettled = useRef(false);
 
   useEffect(() => {
+    // Re-animate on every focus change: into a cluster, or back to birds-eye.
     settled.current = false;
+    homeSettled.current = false;
   }, [focusGroupId]);
 
   useFrame(() => {
     const c = controlsRef.current;
     if (!c) return;
-    // Auto-rotate only in the calm overview state.
-    c.autoRotate = !reduced && !draggingRef.current && !focusGroupId;
+    // Auto-rotate only once we're calmly settled in the birds-eye overview.
+    c.autoRotate =
+      !reduced && !draggingRef.current && !focusGroupId && homeSettled.current;
 
     if (focusPos) {
       const outward = focusPos.clone().sub(ORIGIN).normalize();
@@ -382,8 +388,27 @@ function CameraRig({ focusPos, focusGroupId, reduced, controlsRef, draggingRef }
       if (reduced) c.target.copy(focusPos);
       else c.target.lerp(focusPos, 0.09);
     } else if (!draggingRef.current) {
-      if (reduced) c.target.set(0, 0, 0);
-      else c.target.lerp(ORIGIN, 0.05);
+      // No cluster focused: fly the camera back to the initial birds-eye view.
+      // Once home (or if the user grabs the controls) stop forcing it so the
+      // overview can be freely orbited.
+      if (!homeSettled.current) {
+        if (reduced) {
+          camera.position.copy(HOME);
+          c.target.copy(ORIGIN);
+          homeSettled.current = true;
+        } else {
+          camera.position.lerp(HOME, 0.06);
+          c.target.lerp(ORIGIN, 0.06);
+          if (camera.position.distanceTo(HOME) < 0.25) homeSettled.current = true;
+        }
+      } else if (reduced) {
+        c.target.set(0, 0, 0);
+      } else {
+        c.target.lerp(ORIGIN, 0.05);
+      }
+    } else {
+      // User is dragging the overview — let them; don't fight their orbit.
+      homeSettled.current = true;
     }
     c.update();
   });
