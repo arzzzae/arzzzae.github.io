@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CanvasLoader from './CanvasLoader';
 
 export interface SkillGroup {
@@ -69,6 +69,7 @@ function prefersReducedMotion(): boolean {
 export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.Element {
   const [supported, setSupported] = useState(false);
   const [reduced, setReduced] = useState(false);
+  const [touch, setTouch] = useState(false);
   const [colors, setColors] = useState<GalaxyColors>({
     text: '#e9eefb',
     dim: '#9aa6c2',
@@ -134,6 +135,20 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
     });
     return () => observer.disconnect();
   }, []);
+
+  // Touch devices have no mouse, so the control hints must read "tap/swipe/pinch"
+  // rather than "click/right-click". `(pointer: coarse)` flags a touch-primary device.
+  useEffect(() => {
+    const mq = window.matchMedia('(pointer: coarse)');
+    const update = (): void => setTouch(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
+  const hintSegments = touch
+    ? ['Swipe to orbit', 'pinch to zoom', 'tap a cluster to focus', 'tap empty space to reset']
+    : ['Drag to orbit', 'right-drag to pan', 'click a cluster to focus', 'right-click to reset'];
 
   const toggleGroup = (id: string): void =>
     setVisible((prev) => {
@@ -255,7 +270,15 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
             </button>
           )}
           <p className="skills3d__hint" aria-hidden="true">
-            Drag to orbit · right-drag to pan · click a cluster to focus · right-click to reset
+            {hintSegments.map((seg, i) => (
+              <Fragment key={seg}>
+                {i > 0 && ' '}
+                <span className="skills3d__hint-seg">
+                  {i > 0 ? '· ' : ''}
+                  {seg}
+                </span>
+              </Fragment>
+            ))}
           </p>
         </div>
       )}

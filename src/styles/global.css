@@ -459,12 +459,18 @@ html[data-theme='light'] .skills3d__chip[aria-pressed='false'] {
 .skills3d__hint {
   position: absolute;
   left: 1rem;
+  right: 1rem;
   bottom: 0.85rem;
   margin: 0;
   font-size: 0.75rem;
   letter-spacing: 0.03em;
   color: var(--text-dim);
   pointer-events: none;
+}
+/* Keep each instruction phrase intact; wrapping happens at the space before a
+   separator, so a "· phrase" segment moves to the next line as a whole. */
+.skills3d__hint-seg {
+  white-space: nowrap;
 }
 .skills3d__list {
   list-style: none;
