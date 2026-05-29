@@ -86,13 +86,14 @@ export default function Timeline({ entries, heading }: TimelineProps): React.JSX
         const steps = panels.length - 1;
         // A short, still "tail" of pinned scroll after the final panel settles.
         // This keeps the last snap point away from the unpin boundary so the
-        // scroll never gets yanked backward at the very end (which briefly
-        // re-pinned the section and made the last role flash back into view).
+        // scroll never gets yanked backward onto it, and the section unpins
+        // during continuous scroll-through (which is seamless) rather than on
+        // a snap point.
         const tail = 0.6;
         const total = steps + tail;
-        const lastSnap = steps / total;
+        // One snap point per panel, expressed as progress over the full (tail-
+        // inclusive) timeline. Deliberately excludes 1.0 (the unpin boundary).
         const snapPoints = Array.from({ length: steps + 1 }, (_, i) => i / total);
-        const directionalSnap = ScrollTrigger.snapDirectional(snapPoints);
 
         const tl = gsap.timeline({
           defaults: { ease: 'power2.inOut', duration: 1 },
@@ -101,15 +102,16 @@ export default function Timeline({ entries, heading }: TimelineProps): React.JSX
             start: 'top top',
             end: () => '+=' + total * window.innerHeight,
             pin: pinEl,
+            anticipatePin: 1,
             scrub: true,
             snap: {
-              // Snap to each role on the way in, but stop snapping once the
-              // final role is reached so the user can scroll out seamlessly.
-              snapTo: (value, self) =>
-                value >= lastSnap ? value : directionalSnap(value, self?.direction ?? 1),
-              duration: 0.25,
+              // Nearest-panel snapping (directional:false) so a small scroll
+              // settles back to the current role instead of jumping ahead, and
+              // the final role is never snapped onto the unpin boundary.
+              snapTo: snapPoints,
+              directional: false,
+              duration: { min: 0.2, max: 0.5 },
               ease: 'power1.inOut',
-              inertia: false,
             },
             onUpdate: (self) => {
               setActive(Math.min(steps, Math.round(self.progress * total)));
