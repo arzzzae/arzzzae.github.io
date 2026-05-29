@@ -438,6 +438,24 @@ html[data-theme='light'] .skills3d__chip[aria-pressed='false'] {
   color: var(--text);
   cursor: pointer;
 }
+.skills3d__title {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  z-index: 3;
+  pointer-events: none;
+  font-weight: 700;
+  font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  text-shadow: 0 0 12px var(--bg), 0 1px 2px var(--bg);
+  opacity: 0;
+  transform-origin: top left;
+  will-change: transform, opacity;
+  white-space: nowrap;
+}
 .skills3d__hint {
   position: absolute;
   left: 1rem;

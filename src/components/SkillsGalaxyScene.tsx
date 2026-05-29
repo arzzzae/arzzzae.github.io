@@ -23,6 +23,7 @@ interface SceneProps {
   setFocusGroupId: (id: string | null) => void;
   reduced: boolean;
   colors: GalaxyColors;
+  titleRef: React.RefObject<HTMLDivElement | null>;
   onReady?: () => void;
 }
 
@@ -144,6 +145,7 @@ export default function SkillsGalaxyScene({
   setFocusGroupId,
   reduced,
   colors,
+  titleRef,
   onReady,
 }: SceneProps): React.JSX.Element {
   const { nodes, edges } = useMemo(() => buildLayout(groups), [groups]);
@@ -199,6 +201,7 @@ export default function SkillsGalaxyScene({
         focusGroupId={focusGroupId}
         setHoveredId={setHoveredId}
         setFocusGroupId={setFocusGroupId}
+        titleRef={titleRef}
       />
     </Canvas>
   );
@@ -216,6 +219,7 @@ interface ContentsProps {
   focusGroupId: string | null;
   setHoveredId: (id: string | null) => void;
   setFocusGroupId: (id: string | null) => void;
+  titleRef: React.RefObject<HTMLDivElement | null>;
 }
 
 function SceneContents({
@@ -230,6 +234,7 @@ function SceneContents({
   focusGroupId,
   setHoveredId,
   setFocusGroupId,
+  titleRef,
 }: ContentsProps): React.JSX.Element {
   const controlsRef = useRef<ControlsLike | null>(null);
   const draggingRef = useRef(false);
@@ -274,7 +279,14 @@ function SceneContents({
           const meshOpacity = emphasis === 'dim' ? 0.18 : 1;
           const emissive = emphasis === 'emphasized' ? 1.6 : emphasis === 'dim' ? 0.15 : 0.7;
           const baseLabelOpacity = emphasis === 'dim' ? 0.12 : emphasis === 'emphasized' ? 1 : 0.7;
-          const labelOpacity = skillLabelVisible(nd) ? baseLabelOpacity : 0;
+          // The focused hub's label is lifted out into the pinned corner title,
+          // so hide its in-scene label to avoid the big text overlapping skills.
+          const isFocusedHub = nd.isHub && nd.groupId === focusGroupId;
+          const labelOpacity = isFocusedHub
+            ? 0
+            : skillLabelVisible(nd)
+              ? baseLabelOpacity
+              : 0;
           const fontSize = nd.isHub ? 0.5 : 0.3;
           return (
             <group key={nd.id} position={nd.pos}>
@@ -346,6 +358,7 @@ function SceneContents({
         reduced={reduced}
         controlsRef={controlsRef}
         draggingRef={draggingRef}
+        titleRef={titleRef}
       />
     </>
   );
@@ -357,12 +370,26 @@ interface RigProps {
   reduced: boolean;
   controlsRef: React.MutableRefObject<ControlsLike | null>;
   draggingRef: React.MutableRefObject<boolean>;
+  titleRef: React.RefObject<HTMLDivElement | null>;
 }
 
-function CameraRig({ focusPos, focusGroupId, reduced, controlsRef, draggingRef }: RigProps): null {
-  const { camera } = useThree();
+function CameraRig({
+  focusPos,
+  focusGroupId,
+  reduced,
+  controlsRef,
+  draggingRef,
+  titleRef,
+}: RigProps): null {
+  const { camera, size } = useThree();
   const settled = useRef(false);
   const homeSettled = useRef(false);
+  // Title fly animation: progress 0 = tucked into the hub node, 1 = pinned in
+  // the corner. `lastHub` remembers the hub position so the title can animate
+  // back into it after focus is cleared.
+  const titleProg = useRef(0);
+  const lastHub = useRef(new THREE.Vector3());
+  const projected = useRef(new THREE.Vector3());
 
   useEffect(() => {
     // Re-animate on every focus change: into a cluster, or back to birds-eye.
@@ -378,6 +405,7 @@ function CameraRig({ focusPos, focusGroupId, reduced, controlsRef, draggingRef }
       !reduced && !draggingRef.current && !focusGroupId && homeSettled.current;
 
     if (focusPos) {
+      lastHub.current.copy(focusPos);
       const outward = focusPos.clone().sub(ORIGIN).normalize();
       const desired = focusPos.clone().add(outward.multiplyScalar(5.5)).add(new THREE.Vector3(0, 4, 0));
       if (!settled.current) {
@@ -411,6 +439,35 @@ function CameraRig({ focusPos, focusGroupId, reduced, controlsRef, draggingRef }
       homeSettled.current = true;
     }
     c.update();
+
+    // Drive the pinned corner title: animate it between the hub node's
+    // projected screen position and the upper-left corner.
+    const el = titleRef.current;
+    if (el) {
+      const target = focusPos ? 1 : 0;
+      titleProg.current = reduced
+        ? target
+        : titleProg.current + (target - titleProg.current) * 0.12;
+      const prog = titleProg.current;
+
+      if (prog < 0.002 && target === 0) {
+        el.style.opacity = '0';
+      } else {
+        projected.current.copy(lastHub.current).project(camera);
+        const nodeX = (projected.current.x * 0.5 + 0.5) * size.width;
+        const nodeY = (-projected.current.y * 0.5 + 0.5) * size.height;
+        const scale = 0.45 + 0.55 * prog;
+        const w = el.offsetWidth;
+        const h = el.offsetHeight;
+        const cornerX = 22;
+        const cornerY = 18;
+        // Lerp the (scale-aware) top-left from "centered on node" to "corner".
+        const x = (nodeX - (w * scale) / 2) * (1 - prog) + cornerX * prog;
+        const y = (nodeY - (h * scale) / 2) * (1 - prog) + cornerY * prog;
+        el.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+        el.style.opacity = String(prog * prog * (3 - 2 * prog));
+      }
+    }
   });
 
   return null;

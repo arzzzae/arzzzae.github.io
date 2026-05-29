@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import CanvasLoader from './CanvasLoader';
 
 export interface SkillGroup {
@@ -79,6 +79,17 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [focusGroupId, setFocusGroupId] = useState<string | null>(null);
   const [sceneReady, setSceneReady] = useState(false);
+
+  // Pinned corner title for the focused cluster. The scene animates this
+  // element from the hub node to the corner (and back) every frame via its ref.
+  const titleRef = useRef<HTMLDivElement>(null);
+  const [titleName, setTitleName] = useState('');
+  useEffect(() => {
+    // Keep the last focused name while the title animates back into the node.
+    if (!focusGroupId) return;
+    const g = groups.find((x) => x.id === focusGroupId);
+    if (g) setTitleName(g.group);
+  }, [focusGroupId, groups]);
 
   // Safety net so the loader never hangs if the GL context fails to create.
   useEffect(() => {
@@ -183,10 +194,14 @@ export default function SkillsGalaxy({ groups }: SkillsGalaxyProps): React.JSX.E
               setFocusGroupId={setFocusGroupId}
               reduced={reduced}
               colors={colors}
+              titleRef={titleRef}
               onReady={() => setSceneReady(true)}
             />
           </Suspense>
           <CanvasLoader label="Charting the galaxy…" />
+          <div ref={titleRef} className="skills3d__title" aria-hidden="true">
+            {titleName}
+          </div>
           {focusGroupId && (
             <button
               type="button"
