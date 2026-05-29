@@ -84,17 +84,16 @@ export default function Timeline({ entries, heading }: TimelineProps): React.JSX
         setActive(0);
 
         const steps = panels.length - 1;
-        // A short, still "tail" of pinned scroll after the final panel settles.
-        // This keeps the last snap point away from the unpin boundary so the
-        // scroll never gets yanked backward onto it, and the section unpins
-        // during continuous scroll-through (which is seamless) rather than on
-        // a snap point.
+        // A short, still "tail" of pinned scroll after the final panel settles,
+        // so the last role gets a beat on screen before the section unpins on a
+        // continuous scroll-through (which is seamless).
         const tail = 0.6;
         const total = steps + tail;
-        // One snap point per panel, expressed as progress over the full (tail-
-        // inclusive) timeline. Deliberately excludes 1.0 (the unpin boundary).
-        const snapPoints = Array.from({ length: steps + 1 }, (_, i) => i / total);
 
+        // No ScrollTrigger snap: snapping animates the scroll position, and that
+        // scroll-velocity change at the pin-release boundary (fighting Lenis) is
+        // what produced the brief "last role re-shows from the bottom" flash.
+        // A plain continuous scrub crosses the unpin boundary seamlessly.
         const tl = gsap.timeline({
           defaults: { ease: 'power2.inOut', duration: 1 },
           scrollTrigger: {
@@ -102,17 +101,7 @@ export default function Timeline({ entries, heading }: TimelineProps): React.JSX
             start: 'top top',
             end: () => '+=' + total * window.innerHeight,
             pin: pinEl,
-            anticipatePin: 1,
             scrub: true,
-            snap: {
-              // Nearest-panel snapping (directional:false) so a small scroll
-              // settles back to the current role instead of jumping ahead, and
-              // the final role is never snapped onto the unpin boundary.
-              snapTo: snapPoints,
-              directional: false,
-              duration: { min: 0.2, max: 0.5 },
-              ease: 'power1.inOut',
-            },
             onUpdate: (self) => {
               setActive(Math.min(steps, Math.round(self.progress * total)));
             },
