@@ -23,11 +23,12 @@ interface TimelineProps {
 }
 
 /**
- * Pinned experience showcase: the section pins to the viewport and each job is
- * revealed one at a time as the user scrolls, with the outgoing role sliding out
- * to the left while the incoming role slides in from the right. Scroll position
- * snaps to each role so a single job always fills the stage — vertical scrolling
- * drives the horizontal advance, and there is no inner scrollbar.
+ * Pinned experience showcase: the section sticks to the viewport (via CSS
+ * `position: sticky`) and each job is revealed one at a time as the user
+ * scrolls, with the outgoing role sliding out to the left while the incoming
+ * role slides in from the right. Vertical scrolling drives the horizontal
+ * advance, and there is no inner scrollbar. Using sticky (rather than GSAP's
+ * pin) means the section releases seamlessly with no layout jump at the edges.
  *
  * When the user prefers reduced motion (or there is only a single entry) the
  * component falls back to a plain, statically stacked list with everything
@@ -84,24 +85,31 @@ export default function Timeline({ entries, heading }: TimelineProps): React.JSX
         setActive(0);
 
         const steps = panels.length - 1;
-        // A short, still "tail" of pinned scroll after the final panel settles,
-        // so the last role gets a beat on screen before the section unpins on a
-        // continuous scroll-through (which is seamless).
+        // A short, still "tail" of scroll after the final panel settles, so the
+        // last role gets a beat on screen before the section releases.
         const tail = 0.6;
         const total = steps + tail;
 
-        // No ScrollTrigger snap: snapping animates the scroll position, and that
-        // scroll-velocity change at the pin-release boundary (fighting Lenis) is
-        // what produced the brief "last role re-shows from the bottom" flash.
-        // A plain continuous scrub crosses the unpin boundary seamlessly.
+        // Pin via native CSS `position: sticky` instead of GSAP's pin. GSAP's
+        // pin swaps the element to position:fixed and back to static at the
+        // release boundary; with smooth scroll that one-frame swap caused the
+        // last role to briefly "re-show from the bottom". A sticky element is
+        // always in normal flow, so it unsticks seamlessly with no layout jump.
+        // GSAP now only reads scroll progress and sets transforms — it never
+        // touches layout. The root is made tall enough for the sticky child to
+        // stay stuck for `total` viewports, then unstick naturally.
+        root.style.height = `${(total + 1) * 100}vh`;
+        pinEl.style.position = 'sticky';
+        pinEl.style.top = '0px';
+
         const tl = gsap.timeline({
           defaults: { ease: 'power2.inOut', duration: 1 },
           scrollTrigger: {
             trigger: root,
             start: 'top top',
-            end: () => '+=' + total * window.innerHeight,
-            pin: pinEl,
+            end: 'bottom bottom',
             scrub: true,
+            invalidateOnRefresh: true,
             onUpdate: (self) => {
               setActive(Math.min(steps, Math.round(self.progress * total)));
             },
@@ -121,8 +129,14 @@ export default function Timeline({ entries, heading }: TimelineProps): React.JSX
         }
 
         // Hold the final role in place for the tail so the timeline duration
-        // stays aligned with the (now longer) pinned scroll distance.
+        // stays aligned with the (now longer) sticky scroll distance.
         tl.to({}, { duration: tail }, steps);
+
+        return () => {
+          root.style.height = '';
+          pinEl.style.position = '';
+          pinEl.style.top = '';
+        };
       });
     },
     { scope: container },

@@ -46,7 +46,10 @@ body {
   background: var(--bg);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  /* clip (not hidden) so horizontal overflow is hidden WITHOUT turning body
+     into a scroll container, which would break `position: sticky` descendants
+     such as the pinned experience showcase. */
+  overflow-x: clip;
 }
 
 h1,
