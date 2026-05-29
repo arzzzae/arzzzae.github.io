@@ -1,10 +1,9 @@
 [
   {
     "id": "dotnet",
-    "group": ".NET / C#",
+    "group": ".NET",
     "weight": 10,
     "items": [
-      "C#",
       "ASP.NET",
       "WebForms",
       "MVC",
@@ -21,30 +20,15 @@
   },
   {
     "id": "web",
-    "group": "Web / JavaScript",
+    "group": "Web",
     "weight": 9,
-    "items": [
-      "TypeScript",
-      "JavaScript",
-      "React",
-      "Angular",
-      "Vue",
-      "jQuery",
-      "HTML",
-      "CSS"
-    ]
+    "items": ["React", "Angular", "Vue", "jQuery", "HTML", "CSS", "Flask"]
   },
   {
-    "id": "ai",
-    "group": "AI / LLM",
+    "id": "languages",
+    "group": "Languages",
     "weight": 8,
-    "items": [
-      "Python",
-      "Flask",
-      "Embeddings",
-      "Chat completions",
-      "RAG workflows"
-    ]
+    "items": ["C#", "TypeScript", "JavaScript", "Python"]
   },
   {
     "id": "cloud",
@@ -58,15 +42,21 @@
     ]
   },
   {
+    "id": "ai",
+    "group": "AI / LLM",
+    "weight": 6,
+    "items": ["Embeddings", "Chat completions", "RAG workflows"]
+  },
+  {
     "id": "data",
     "group": "Databases",
-    "weight": 6,
+    "weight": 5,
     "items": ["SQL Server", "Relational DBs", "Document stores"]
   },
   {
     "id": "integrations",
     "group": "Integrations",
-    "weight": 5,
+    "weight": 4,
     "items": ["ConnectWise", "REST APIs", "SaaS integrations"]
   }
 ]
