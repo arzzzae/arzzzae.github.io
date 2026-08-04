@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   experienceSchema,
+  industryGroupSchema,
   pinnedProjectSchema,
   skillGroupSchema,
   testimonialSchema,
@@ -21,6 +22,29 @@ describe('experienceSchema', () => {
 
   it('rejects an entry missing required fields', () => {
     expect(() => experienceSchema.parse({ role: 'Dev' })).toThrow();
+  });
+});
+
+describe('industryGroupSchema', () => {
+  it('accepts a company with one or more industries', () => {
+    const parsed = industryGroupSchema.parse({
+      id: 'aviation',
+      company: 'Acme',
+      industries: ['Aviation'],
+      order: 0,
+    });
+    expect(parsed.industries).toEqual(['Aviation']);
+  });
+
+  it('rejects a company with no industries', () => {
+    expect(() =>
+      industryGroupSchema.parse({
+        id: 'empty',
+        company: 'Acme',
+        industries: [],
+        order: 0,
+      }),
+    ).toThrow();
   });
 });
 

@@ -18,31 +18,60 @@ function cloneConfig(overrides: Partial<SiteConfig> = {}): SiteConfig {
 
 describe('resolveSections', () => {
   it('renders all enabled sections when data-driven sections have content', () => {
-    const result = resolveSections(cloneConfig(), { projects: 5, testimonials: 2 });
+    const result = resolveSections(cloneConfig(), {
+      industries: 3,
+      projects: 5,
+      testimonials: 2,
+    });
     expect(result).toEqual(SECTION_ORDER);
   });
 
   it('hides testimonials when there are none', () => {
-    const result = resolveSections(cloneConfig(), { projects: 5, testimonials: 0 });
+    const result = resolveSections(cloneConfig(), {
+      industries: 3,
+      projects: 5,
+      testimonials: 0,
+    });
     expect(result).not.toContain('testimonials');
     expect(result).toContain('projects');
   });
 
   it('hides projects when there are none', () => {
-    const result = resolveSections(cloneConfig(), { projects: 0, testimonials: 1 });
+    const result = resolveSections(cloneConfig(), {
+      industries: 3,
+      projects: 0,
+      testimonials: 1,
+    });
     expect(result).not.toContain('projects');
+  });
+
+  it('hides industries when there are none', () => {
+    const result = resolveSections(cloneConfig(), {
+      industries: 0,
+      projects: 5,
+      testimonials: 1,
+    });
+    expect(result).not.toContain('industries');
   });
 
   it('respects a disabled feature flag even when content exists', () => {
     const config = cloneConfig({
       features: { ...siteConfig.features, experience: false },
     });
-    const result = resolveSections(config, { projects: 3, testimonials: 3 });
+    const result = resolveSections(config, {
+      industries: 3,
+      projects: 3,
+      testimonials: 3,
+    });
     expect(result).not.toContain('experience');
   });
 
   it('preserves the canonical section order', () => {
-    const result = resolveSections(cloneConfig(), { projects: 1, testimonials: 1 });
+    const result = resolveSections(cloneConfig(), {
+      industries: 1,
+      projects: 1,
+      testimonials: 1,
+    });
     const indices = result.map((id) => SECTION_ORDER.indexOf(id));
     const sorted = [...indices].sort((a, b) => a - b);
     expect(indices).toEqual(sorted);

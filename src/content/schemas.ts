@@ -17,6 +17,13 @@ export const experienceSchema = z.object({
   stack: z.array(z.string()).default([]),
 });
 
+export const industryGroupSchema = z.object({
+  id: z.string(),
+  company: z.string(),
+  industries: z.array(z.string()).min(1),
+  order: z.number(),
+});
+
 export const skillGroupSchema = z.object({
   id: z.string(),
   group: z.string(),

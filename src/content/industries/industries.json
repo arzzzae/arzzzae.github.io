@@ -1,0 +1,20 @@
+[
+  {
+    "id": "exchange-technology-services",
+    "company": "Exchange Technology Services",
+    "order": 0,
+    "industries": ["Aviation", "Manufacturing"]
+  },
+  {
+    "id": "clear-concepts",
+    "company": "Clear Concepts",
+    "order": 1,
+    "industries": ["Non-profit", "Healthcare"]
+  },
+  {
+    "id": "core49",
+    "company": "Core49 Software Design & Development, Inc.",
+    "order": 2,
+    "industries": ["Education", "Entertainment", "Agriculture", "Hardware & Device Software"]
+  }
+]

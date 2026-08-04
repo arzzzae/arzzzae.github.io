@@ -2,6 +2,7 @@ import { defineCollection } from 'astro:content';
 import { glob, file } from 'astro/loaders';
 import {
   experienceSchema,
+  industryGroupSchema,
   pinnedProjectSchema,
   skillGroupSchema,
   testimonialSchema,
@@ -10,6 +11,11 @@ import {
 const experience = defineCollection({
   loader: glob({ pattern: '**/[^_]*.md', base: './src/content/experience' }),
   schema: experienceSchema,
+});
+
+const industries = defineCollection({
+  loader: file('./src/content/industries/industries.json'),
+  schema: industryGroupSchema,
 });
 
 const skills = defineCollection({
@@ -27,4 +33,4 @@ const testimonials = defineCollection({
   schema: testimonialSchema,
 });
 
-export const collections = { experience, skills, projects, testimonials };
+export const collections = { experience, industries, skills, projects, testimonials };

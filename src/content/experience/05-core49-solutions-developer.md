@@ -14,6 +14,8 @@ stack:
   - Xamarin
   - SQL Server
   - Figma
+  - Native Windows UI
+  - HID API
 highlights:
   - Built and integrated custom software with client systems including Microsoft AD and Microsoft Dynamics.
   - Created a real-time auction web application using SignalR, Angular, and .NET Core API.
@@ -21,8 +23,11 @@ highlights:
   - Developed and shipped a Xamarin mobile app to the Google Play and Apple App stores.
   - Wrote performant SQL queries to improve data I/O processing.
   - Earned HIPAA certification to securely handle US medical clients' patient data.
+  - Collaborated with a team to develop a native meeting application for a proprietary headless Windows device, contributing to its UI and HID API integration.
 ---
 
 Collaborated with diverse clients to deliver tailored software, addressing unique
-requirements across web, desktop, and mobile — from custom integrations and
-legacy maintenance to real-time and cross-platform applications.
+requirements across web, desktop, mobile, and proprietary device environments —
+from custom integrations and legacy maintenance to real-time and cross-platform
+applications. Also worked as part of a team on native meeting software for a
+headless Windows device, contributing to its UI and HID API integration.
