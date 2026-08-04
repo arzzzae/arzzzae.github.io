@@ -13,6 +13,7 @@ export interface TimelineEntry {
   end: string;
   highlights: string[];
   stack: string[];
+  industries: string[];
   body: string;
 }
 
@@ -169,6 +170,16 @@ export default function Timeline({ entries, heading }: TimelineProps): React.JSX
                   {entry.company}
                   {entry.location ? ` · ${entry.location}` : ''}
                 </p>
+                {entry.industries.length > 0 && (
+                  <div className="expshow__industries">
+                    <span className="expshow__label">Industries</span>
+                    <ul className="expshow__industry-list">
+                      {entry.industries.map((industry) => (
+                        <li key={industry}>{industry}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 {entry.body && <p className="expshow__body">{entry.body}</p>}
                 {entry.highlights.length > 0 && (
                   <ul className="expshow__highlights">

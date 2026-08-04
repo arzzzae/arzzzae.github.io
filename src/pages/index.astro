@@ -27,6 +27,10 @@ const experienceEntries = (await getCollection('experience')).sort(
   (a: CollectionEntry<'experience'>, b: CollectionEntry<'experience'>) =>
     a.data.order - b.data.order,
 );
+const industryEntries = (await getCollection('industries')).sort(
+  (a: CollectionEntry<'industries'>, b: CollectionEntry<'industries'>) =>
+    a.data.order - b.data.order,
+);
 const skillEntries = (await getCollection('skills')).sort(
   (a: CollectionEntry<'skills'>, b: CollectionEntry<'skills'>) =>
     b.data.weight - a.data.weight,
@@ -56,6 +60,7 @@ const projects = await fetchUserProjects(siteConfig.githubUsername, {
 
 // --- Resolve which sections render ---
 const sections = resolveSections(siteConfig, {
+  industries: industryEntries.length,
   projects: projects.length,
   testimonials: testimonialEntries.length,
 });
@@ -63,17 +68,34 @@ const has = (id: SectionId): boolean => sections.includes(id);
 
 const socialLinks = resolveSocialLinks(siteConfig);
 
+const industriesByCompany = new Map<string, string[]>(
+  industryEntries.map((entry: CollectionEntry<'industries'>) => [
+    entry.data.company,
+    entry.data.industries,
+  ]),
+);
+const companiesWithIndustries = new Set<string>();
 const timelineEntries: TimelineEntry[] = experienceEntries.map(
-  (e: CollectionEntry<'experience'>) => ({
-    role: e.data.role,
-    company: e.data.company,
-    location: e.data.location,
-    start: e.data.start,
-    end: e.data.end,
-    highlights: e.data.highlights,
-    stack: e.data.stack,
-    body: e.body?.trim() ?? '',
-  }),
+  (e: CollectionEntry<'experience'>) => {
+    const companyIndustries = industriesByCompany.get(e.data.company) ?? [];
+    const industries =
+      companyIndustries.length > 0 && !companiesWithIndustries.has(e.data.company)
+        ? companyIndustries
+        : [];
+    if (industries.length > 0) companiesWithIndustries.add(e.data.company);
+
+    return {
+      role: e.data.role,
+      company: e.data.company,
+      location: e.data.location,
+      start: e.data.start,
+      end: e.data.end,
+      highlights: e.data.highlights,
+      stack: e.data.stack,
+      industries,
+      body: e.body?.trim() ?? '',
+    };
+  },
 );
 
 const skillGroups: SkillGroup[] = skillEntries.map((e: CollectionEntry<'skills'>) => ({
@@ -176,6 +198,30 @@ const year = new Date().getFullYear();
       has('experience') && (
         <section id="experience" class="section experience">
           <Timeline client:load heading="Experience" entries={timelineEntries} />
+        </section>
+      )
+    }
+
+    {
+      has('industries') && (
+        <section id="industries" class="section industries">
+          <ScrollReveal client:visible>
+            <h2 class="section__title">Industries</h2>
+            <p class="section__lead">
+              Domains I have supported through custom software, cloud solutions, and product
+              development.
+            </p>
+          </ScrollReveal>
+          <ScrollReveal client:visible className="industries__grid" stagger>
+            {industryEntries.map((entry: CollectionEntry<'industries'>) => (
+              <article class="industry-card" data-reveal-item>
+                <h3 class="industry-card__company">{entry.data.company}</h3>
+                <ul class="industry-card__list">
+                  {entry.data.industries.map((industry: string) => <li>{industry}</li>)}
+                </ul>
+              </article>
+            ))}
+          </ScrollReveal>
         </section>
       )
     }

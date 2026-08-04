@@ -10,6 +10,7 @@ export type SectionId =
   | 'about'
   | 'skills'
   | 'experience'
+  | 'industries'
   | 'projects'
   | 'testimonials'
   | 'contact';
@@ -81,6 +82,7 @@ export const siteConfig: SiteConfig = {
     about: true,
     skills: true,
     experience: true,
+    industries: true,
     projects: true,
     testimonials: true,
     contact: true,
@@ -93,12 +95,14 @@ export const SECTION_ORDER: SectionId[] = [
   'about',
   'skills',
   'experience',
+  'industries',
   'projects',
   'testimonials',
   'contact',
 ];
 
 export interface SectionContentCounts {
+  industries: number;
   projects: number;
   testimonials: number;
 }
@@ -116,6 +120,7 @@ export function resolveSections(
   return SECTION_ORDER.filter((id) => {
     if (!config.features[id]) return false;
     // Data-driven sections hide themselves when empty.
+    if (id === 'industries') return counts.industries > 0;
     if (id === 'testimonials') return counts.testimonials > 0;
     if (id === 'projects') return counts.projects > 0;
     return true;

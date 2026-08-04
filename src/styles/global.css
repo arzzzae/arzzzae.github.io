@@ -637,6 +637,33 @@ html[data-theme='light'] .skills3d__chip[aria-pressed='false'] {
   margin: 0.4rem 0 1rem;
   font-size: 1.05rem;
 }
+.expshow__industries {
+  margin: 0 0 1rem;
+}
+.expshow__label {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.expshow__industry-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.expshow__industry-list li {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--surface-border));
+  color: var(--accent-2);
+}
 .expshow__body {
   color: var(--text-dim);
   margin: 0 0 1rem;
@@ -829,6 +856,39 @@ html[data-theme='light'] .skills3d__chip[aria-pressed='false'] {
   border-radius: 999px;
   background: var(--bg-soft);
   color: var(--text-dim);
+}
+
+/* Industries ---------------------------------------------------------------*/
+.industries__grid {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+.industry-card {
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+}
+.industry-card__company {
+  margin: 0;
+  font-size: 1.15rem;
+}
+.industry-card__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 1.1rem 0 0;
+  padding: 0;
+}
+.industry-card__list li {
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: var(--bg-soft);
+  color: var(--text-dim);
+  font-size: 0.82rem;
 }
 
 /* Testimonials -------------------------------------------------------------*/

@@ -102,6 +102,7 @@ describe('component smoke tests', () => {
             end: 'Present',
             highlights: ['Did things'],
             stack: ['C#'],
+            industries: ['Aviation'],
             body: 'Body text',
           },
         ]}
@@ -110,6 +111,7 @@ describe('component smoke tests', () => {
     expect(screen.getByText('Dev')).toBeInTheDocument();
     expect(screen.getByText(/Acme/)).toBeInTheDocument();
     expect(screen.getByText('Did things')).toBeInTheDocument();
+    expect(screen.getByText('Aviation')).toBeInTheDocument();
   });
 
   it('SkillsGalaxy renders an accessible grouped skills list', () => {
